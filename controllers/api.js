@@ -18,10 +18,10 @@ exports.index = (req, res) => {
 };
 
 /**
- * POST /api/user/find
- * Get user info from user id.
+ * POST /api/user/data
+ * Get user data from user id.
  */
-exports.postFindUser = (req, res, next) => {
+exports.postGetUserData = (req, res, next) => {
     req.assert('id', 'Id is empty/not valid.').notEmpty();
 
     const errors = req.validationErrors();
@@ -44,7 +44,7 @@ exports.postFindUser = (req, res, next) => {
             }
             req.logIn(user, (err) => {
                 return res.status(200).json({
-                    user: user
+                    data: user.data
                 });
             });
         });

@@ -14,39 +14,52 @@ block content
             if user.profile.firstName
                 h1 Welcome to your dashboard, #{user.profile.firstName}!
                 hr
-                .col-sm-6
-                    h2 Swear Information
-                        if user.data.length > 0
-                            each entry in user.data
-                                h3= entry.date.format("MMM D, Y")
-                                each action in entry.actions
-                                    p= action.time.format("h:m A")
-                                        | : #{action.actionType}, 
-                                        span.red.bold= '+' + action.amountDeducted
+                .row
+                    .col-sm-6
+                        h2 Balance Info
+                        if user.account.balance > 15
+                            .form-inline.has-success
+                                .input-group.input-group-lg.bold
+                                    .input-group-addon $
+                                    input.form-control.form-control-success(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
+                                h3.text-success Your balance is good!
+                        else if user.account.balance > 0
+                            .form-inline.has-warning
+                                .input-group.input-group-lg.bold
+                                    .input-group-addon $
+                                    input.bold.form-control.form-control-warning(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
+                                h3.text-warning Your balance is almost empty.
                         else
-                            h3 There is no negative data. 
-                                .i.fa.fa-smile-o
-                    #chart
-                .col-sm-6
-                    h2 Balance Info
-                    if user.account.balance > 15
-                        .form-inline.has-success
+                            .form-inline.has-danger
+                                .input-group.input-group-lg.bold
+                                    .input-group-addon $
+                                    input.form-control.form-control-danger(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
+                                h3.text-danger Your balance is empty!
+                    .col-sm-6
+                        h2 Deposit Money
+                        form.form-inline(action='/account/profile', method='POST')
                             .input-group.input-group-lg.bold
                                 .input-group-addon $
                                 input.form-control.form-control-success(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
-                            h3.text-success Your balance is good!
-                    else if user.account.balance > 0
-                        .form-inline.has-warning
-                            .input-group.input-group-lg.bold
-                                .input-group-addon $
-                                input.bold.form-control.form-control-warning(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
-                            h3.text-warning Your balance is almost empty.
-                    else
-                        .form-inline.has-danger
-                            .input-group.input-group-lg.bold
-                                .input-group-addon $
-                                input.form-control.form-control-danger(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
-                            h3.text-danger Your balance is empty!
+                        .form-group
+                            .col-sm-offset-3.col-sm-4
+                                button.btn.btn.btn-primary(type='submit')
+                                    i.fa.fa-pencil
+                                    | Update Profile
+                .row
+                    .col-sm-6
+                        h2 Swear Information
+                            if user.data.length > 0
+                                each entry in user.data
+                                    h3= entry.date.format("MMM D, Y")
+                                    each action in entry.actions
+                                        p= action.time.format("h:m A")
+                                            | : #{action.actionType}, 
+                                            span.red.bold= '+' + action.amountDeducted
+                            else
+                                h3 There is no negative data. 
+                                    .i.fa.fa-smile-o
+                        #chart
                     
             else
                 h1 Welcome!
@@ -77,10 +90,10 @@ block content
         swears.unshift('swears');
         dates.unshift('dates');
         
-        var chart = c3.generate({
-            bindto: '#chart',
+        var swearChart = c3.generate({
+            bindto: '#swear-chart',
             title: {
-                text: 'Swears vs Time'
+                text: 'Swearing vs Time'
             },
             data: {
                 x: 'dates',
