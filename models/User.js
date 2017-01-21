@@ -14,14 +14,21 @@ const userSchema = new mongoose.Schema({
     tokens: Array,
 
     account: {
-        balance: { type: Number, default: 0 }
+        balance: { type: Number, default: 0 },
+        dailySwearMax: { type: Number, default: 3 },
+    },
+
+
+
+    data: {
+        swear: {
+
+        }
     },
 
     profile: {
         firstName: { type: String, default: '' },
         lastName: { type: String, default: '' },
-        location: { type: String, default: '' },
-        website: { type: String, default: '' },
         picture: { type: String, default: '' }
     },
 }, { timestamps: true });
