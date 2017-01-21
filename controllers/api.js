@@ -7,6 +7,18 @@ const chance = new require('chance')();
 const User = require('../models/User');
 
 /**
+ * GET /api
+ * API home page.
+ */
+exports.index = (req, res) => {
+    res.render('api/home', {
+        title: 'API',
+        user: req.user
+    });
+};
+
+
+/**
  * POST /api/signup
  * Create a new local account.
  */
@@ -59,24 +71,111 @@ exports.postSignup = (req, res, next) => {
  * Create a new local account with good dates.
  */
 exports.postSignupHack = (req, res, next) => {
+    const email = req.body.email || "a@a.com";
+    const password = req.body.password || "asdf";
     const user = new User({
         profile: {
             firstName: "John",
             lastName: "Smith"
         },
         email: "a@a.com",
-        password: "asdf"
+        password: "12345"
     });
 
-    User.findOne({ email: "a@a.com" }, (err, existingUser) => {
-        if (existingUser) {
-            existingUser.data.swear = [];
-            for (var i = 0; i < 7; i++) {
+    var numOfActions = req.body.numOfActions || 3;
 
-            }
-            return res.status(400).json([{
-                msg: 'Account with that email address already exists.'
+    User.findOne({ email: email }, (err, existingUser) => {
+        if (err) {
+            return res.status(500).json([{
+                msg: "Server failure."
             }]);
+        }
+        if (existingUser) {
+            existingUser.email = email;
+            existingUser.password = password;
+            existingUser.data = [];
+            let temp = moment();
+            for (var i = 0; i < 7; i++) {
+                temp = moment(temp).subtract(1, 'days');
+                console.log(temp);
+                existingUser.data.push({
+                    date: temp,
+                    swearCount: 0,
+                    timerCount: 0,
+                    actions: []
+                });
+                var entry = existingUser.data[i];
+                for (var j = 0; j < numOfActions; j++) {
+                    var penalty = 0;
+                    var type;
+                    if (Math.random() < 0.5) {
+                        type = 'swear';
+                        if (entry.swearCount >= user.account.dailySwearMax) {
+                            penalty = 1;
+                        }
+                        entry.swearCount++;
+                    } else {
+                        type = 'timer';
+                        if (entry.timerCount >= user.account.dailyTimerMax) {
+                            penalty = 1;
+                        }
+                        entry.timerCount++;
+                    }
+                    temp.subtract(15, 'minutes');
+                    existingUser.data[i].actions.push({
+                        time: temp.add(5, 'minutes'),
+                        actionType: type,
+                        amountDeducted: penalty
+                    });
+                }
+            }
+            existingUser.save((err) => {
+                if (err) {
+                    return res.status(500).json([{
+                        msg: "Server failure."
+                    }]);
+                }
+                req.logIn(existingUser, (err) => {
+                    return res.status(200).json({
+                        user: existingUser
+                    });
+                });
+            });
+            return;
+        }
+        let temp = moment();
+        for (let i = 0; i < 7; i++) {
+            temp = moment(temp).subtract(1, 'days');
+            user.data.push({
+                date: temp,
+                swearCount: 0,
+                timerCount: 0,
+                actions: []
+            });
+            let entry = user.data[i];
+            for (let j = 0; j < numOfActions; j++) {
+                let penalty = 0;
+                let type;
+                if (Math.random() < 0.5) {
+                    type = 'swear';
+                    if (entry.swearCount >= user.account.dailySwearMax) {
+                        penalty = 1;
+                    }
+                    entry.swearCount++;
+                } else {
+                    type = 'timer';
+                    if (entry.timerCount >= user.account.dailyTimerMax) {
+                        penalty = 1;
+                    }
+                    entry.timerCount++;
+                }
+                temp.add(3, 'hours');
+                user.data[i].actions.push({
+                    time: temp.add(5, 'minutes'),
+                    actionType: type,
+                    amountDeducted: penalty
+                });
+            }
         }
         user.save((err) => {
             if (err) {
@@ -177,6 +276,8 @@ exports.postAccount = (req, res, next) => {
             user.account[key] = value;
         } else if (key == 'firstName' || key == 'lastName' || key == 'location' || key == 'website') {
             user.profile[key] = value;
+        } else if (key == 'timeOfLastText') {
+            user.account[key] = moment(value);
         } else {
             return res.status(400).json([{
                 msg: "Invalid key."
@@ -271,19 +372,17 @@ exports.postAction = (req, res, next) => {
             } else if (entry.date.isSame(currDateStart, 'day')) {
                 // TODO: Account for time differences
                 // var count2 = entry.actions.length - 1;
-                var penalty = 0;
+                let penalty = 0;
                 if (req.body.type == 'swear') {
-                    if (entry.swearCount == user.account.dailySwearMax) {
+                    if (entry.swearCount >= user.account.dailySwearMax) {
                         penalty = 1;
-                    } else {
-                        entry.swearCount++;
                     }
+                    entry.swearCount++;
                 } else if (req.body.type == 'timer') {
-                    if (entry.timerCount == user.account.dailyTimerMax) {
+                    if (entry.timerCount >= user.account.dailyTimerMax) {
                         penalty = 1;
-                    } else {
-                        entry.timerCount++;
                     }
+                    entry.timerCount++;
                 } else {
                     return res.status(400).json([{
                         msg: "Action type is not valid."
