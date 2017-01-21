@@ -23,6 +23,7 @@ exports.index = (req, res) => {
  */
 exports.postGetUserData = (req, res, next) => {
     req.assert('id', 'Id is empty/not valid.').notEmpty();
+    console.log()
 
     const errors = req.validationErrors();
 
@@ -30,7 +31,12 @@ exports.postGetUserData = (req, res, next) => {
         return res.status(400).json(errors);
     }
 
-    User.findOne({ id: req.body.id }, (err, user) => {
+    User.findOne({ _id: req.body.id }, (err, user) => {
+        if (err) {
+            return res.status(500).json([{
+                msg: 'Server failure.'
+            }]);
+        }
         if (!user) {
             return res.status(400).json([{
                 msg: 'No user with that id exists.'
@@ -39,7 +45,7 @@ exports.postGetUserData = (req, res, next) => {
         user.save((err) => {
             if (err) {
                 return res.status(500).json([{
-                    msg: "Server failure."
+                    msg: 'Server failure.'
                 }]);
             }
             req.logIn(user, (err) => {
@@ -79,6 +85,11 @@ exports.postSignup = (req, res, next) => {
     });
 
     User.findOne({ email: req.body.email }, (err, existingUser) => {
+        if (err) {
+            return res.status(500).json([{
+                msg: 'Server failure.'
+            }]);
+        }
         if (existingUser) {
             return res.status(400).json([{
                 msg: 'Account with that email address already exists.'
