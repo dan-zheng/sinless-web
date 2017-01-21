@@ -30,22 +30,22 @@ block content
                     h2 Balance Info
                 if user.account.balance > 15
                     .form-inline.has-success
-                        .input-group.bold
+                        .input-group.input-group-lg.bold
                             .input-group-addon $
                             input.form-control.form-control-success(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
-                        p.text-success Your balance is good!
+                        h3.text-success Your balance is good!
                 else if user.account.balance > 0
                     .form-inline.has-warning
-                        .input-group.bold
+                        .input-group.input-group-lg.bold
                             .input-group-addon $
                             input.bold.form-control.form-control-warning(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
-                        p.text-warning Your balance is almost empty.
+                        h3.text-warning Your balance is almost empty.
                 else
                     .form-inline.has-danger
-                        .input-group.bold
+                        .input-group.input-group-lg.bold
                             .input-group-addon $
                             input.form-control.form-control-danger(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
-                        p.text-danger Your balance is empty!
+                        h3.text-danger Your balance is empty!
                     
             else
                 h1 Welcome!
