@@ -38,6 +38,25 @@ body {
     color: #f77380;
 }
 
+.red {
+    height: inherit;
+    color: rgb(255, 0, 0) !important;
+    //background-color: rgba(236, 199, 199, 0.5) !important;
+}
+
+.gray {
+    color: rgb(165, 176, 191) !important;
+}
+
+.green {
+    color: rgb(79, 254, 27) !important;
+    //background-color: rgba(190, 223, 184, 0.5) !important;
+}
+
+.bold {
+    font-weight: 700 !important;
+}
+
 .main {
 
 }
@@ -104,6 +123,9 @@ body {
         .emph {
             font-style: italic;
         }
+    }
+    h2, h2 {
+        font-weight: 200;
     }
     p {
         font-family: "Roboto";

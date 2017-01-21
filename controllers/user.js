@@ -1,7 +1,10 @@
 const async = require('async');
+const formidable = require('formidable');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const passport = require('passport');
+const util = require('util');
+
 const User = require('../models/User');
 
 /**
@@ -143,7 +146,6 @@ exports.postUpdateProfile = (req, res, next) => {
         user.email = req.body.email || '';
         user.profile.firstName = req.body.firstName || '';
         user.profile.lastName = req.body.lastName || '';
-        user.profile.gender = req.body.gender || '';
         user.profile.location = req.body.location || '';
         user.profile.website = req.body.website || '';
         user.save((err) => {
@@ -181,6 +183,32 @@ exports.postUpdatePassword = (req, res, next) => {
         user.save((err) => {
             if (err) { return next(err); }
             req.flash('success', { msg: 'Password has been changed.' });
+            res.redirect('/account');
+        });
+    });
+};
+
+/**
+ * POST /account/goals
+ * Update user goals.
+ */
+exports.postUpdateGoals = (req, res, next) => {
+    req.assert('deposit', 'Value was not specified/is not valid.').notEmpty().isFloat().gte(0);
+    req.assert('dailySwearMax', 'Daily swear max was not specified/is not valid.').notEmpty().isInt().gte(0);
+
+    const errors = req.validationErrors();
+
+    if (errors) {
+        req.flash('errors', errors);
+        return res.redirect('/account');
+    }
+    User.findById(req.user.id, (err, user) => {
+        if (err) { return next(err); }
+        user.account.balance = Math.round((parseFloat(user.account.balance) + parseFloat(req.body.deposit)) * 100) / 100;
+        user.account.dailySwearMax = req.body.dailySwearMax;
+        user.save((err) => {
+            if (err) { return next(err); }
+            req.flash('success', { msg: 'Goal information has been updated.' });
             res.redirect('/account');
         });
     });
@@ -380,218 +408,22 @@ exports.postForgot = (req, res, next) => {
 };
 
 /**
- * GET /events
- * Events page.
+ * POST /pebble
+ * Post Pebble health information.
  */
-exports.getEvents = (req, res) => {
-    res.render('events/home', {
-        title: 'Events'
+exports.postPebble = (req, res) => {
+    var form = new formidable.IncomingForm();
+
+    form.parse(req, function(err, fields, files) {
+        const rawData = fields.data.split(',');
+        const data = {
+            date: new Date(rawData[0]),
+            numSteps: parseInt(rawData[1]),
+            VMC: rawData[4],
+            ambientLightLevel: rawData[5],
+            activityMask: rawData[6]
+        };
+        console.log("fields: " + util.inspect(data));
     });
-};
-
-/**
- * GET /groups
- * Groups page.
- */
-exports.getGroups = (req, res) => {
-    res.render('groups/home', {
-        title: 'Groups'
-    });
-};
-
-/**
- * GET /events/create
- * Event creation page.
- */
-exports.getEventsCreate = (req, res) => {
-    res.render('events/create', {
-        title: 'Create event'
-    });
-};
-
-/**
- * GET /groups/create
- * Group creation page.
- */
-exports.getGroupsCreate = (req, res) => {
-    res.render('groups/create', {
-        title: 'Create group'
-    });
-};
-
-/**
- * POST /events/create
- * Create a new event.
- */
-exports.postEventsCreate = (req, res, next) => {
-    req.assert('description', 'The description must be less than 140 characters.').len(0, 140);
-    req.assert('guests', 'You must add at least one guest to this event.').isArray();
-
-    const errors = req.validationErrors();
-
-    if (errors) {
-        req.flash('errors', errors);
-        return res.redirect('/events/create');
-    }
-
-    const event = new Event({
-        name: req.body.name,
-        description: req.body.description || '',
-        location: req.body.location,
-        times: [{time: Date.now(), value: true}],
-        owner: req.user._id,
-        planners: [req.user._id],
-        guests: [req.user._id]
-    });
-
-    event.save((err) => {
-        if (err) { return next(err); }
-        console.log("test");
-        User.findByIdAndUpdate(req.user._id, {
-            $push: { events: { name: event.name, id: event._id } }
-        }, { 'new': true}, (err) => {
-            if (err) { return next(err); }
-            return res.redirect('/events/' + event._id);
-        });
-    });
-};
-
-/**
- * POST /groups/create
- * Create a new group.
- */
-exports.postGroupsCreate = (req, res, next) => {
-    req.assert('description', 'The description must be less than 140 characters.').len(0, 140);
-    req.check('members', 'You must add at least one member to this group.').isArray();
-
-    const errors = req.validationErrors();
-
-    if (errors) {
-        req.flash('errors', errors);
-        return res.redirect('/groups/create');
-    }
-
-    const group = new Group({
-        name: req.body.name,
-        description: req.body.description || '',
-        owner: req.user._id,
-        managers: [req.user._id],
-        members: [req.user._id]
-    });
-
-    group.save((err) => {
-        if (err) { return next(err); }
-        User.findByIdAndUpdate(req.user._id, {
-            $push: { groups: { name: group.name, id: group._id } }
-        }, { 'new': true}, (err) => {
-            if (err) { return next(err); }
-            return res.redirect('/groups/' + group._id);
-        });
-    });
-};
-
-/**
- * GET /events/:id
- * Event page.
- */
-exports.getEvent = (req, res) => {
-    Event.findById(req.params.id, (err, event) => {
-        if (err) { return next(err); }
-        res.render('events/event', {
-            title: 'Event',
-            event: event
-        });
-    });
-};
-
-/**
- * GET /groups/:id
- * Group page.
- */
-exports.getGroup = (req, res, next) => {
-    Group.findById(req.params.id, (err, group) => {
-        if (err) { return next(err); }
-        res.render('groups/group', {
-            title: 'Group',
-            group: group
-        });
-    });
-};
-
-/**
- * POST /events/:id
- * Update event information.
- */
-exports.postEvent = (req, res) => {
-    Event.findById(req.params.id, (err, event) => {
-        if (err) { return next(err); }
-        event.name = req.body.name;
-        event.description = req.body.description || '';
-        event.owner = req.user._id;
-        event.managers = [req.user._id];
-        event.members = [req.user._id];
-        event.save((err) => {
-            if (err) { return next(err); }
-            req.flash('success', { msg: 'Event information has been updated.' });
-            res.render('events/event', {
-                title: 'Event',
-                event: event
-            });
-        });
-    });
-};
-
-/**
- * POST /groups/:id
- * Update group information.
- */
-exports.postGroup = (req, res) => {
-    Group.findById(req.params.id, (err, group) => {
-        if (err) { return next(err); }
-        group.name = req.body.name;
-        group.description = req.body.description || '';
-        group.owner = req.user._id;
-        group.managers = [req.user._id];
-        group.members = [req.user._id];
-        group.save((err) => {
-            if (err) { return next(err); }
-            req.flash('success', { msg: 'Group information has been updated.' });
-            res.render('groups/group', {
-                title: 'Group',
-                group: group
-            });
-        });
-    });
-};
-
-/**
- * POST /events/:id/delete
- * Delete event page.
- */
-exports.deleteEvent = (req, res) => {
-    const id = req.params.id;
-    Event.remove({ _id: id }, (err) => {
-        if (err) { return next(err); }
-        req.flash('info', { msg: 'The event has been deleted.' });
-        User.update({ _id: req.user._id }, { $pull: { events: { id: id } } }, (err) => {
-            if (err) { return next(err); }
-            return res.redirect('/events');
-        });
-    });
-};
-
-/**
- * POST /groups/:id/delete
- * Delete group page.
- */
-exports.deleteGroup = (req, res, next) => {
-    const id = req.params.id;
-    Group.remove({ _id: req.params.id }, (err) => {
-        if (err) { return next(err); }
-        req.flash('info', { msg: 'The group has been deleted.' });
-        User.update({ _id: req.user._id }, { $pull: { groups: { id: id } } }, (err) => {
-            if (err) { return next(err); }
-            return res.redirect('/groups');
-        });
-    });
+    console.log("PEBBLE POST");
 };

@@ -12,6 +12,80 @@ block content
     else
         div.main.auth
             if user.profile.firstName
-                h1 Welcome, #{user.profile.firstName}!
+                h1 Welcome to your dashboard, #{user.profile.firstName}!
+                hr
+                .col-sm-6
+                    h2 Swear Information
+                        if user.data.length > 0
+                            each entry in user.data
+                                h3= entry.date.format("MMM D, Y")
+                                each action in entry.actions
+                                    p= action.time.format("h:m A")
+                                        | : #{action.actionType}, 
+                                        span.red.bold= '+' + action.amountDeducted
+                        else
+                            h3 There is no negative data. 
+                                .i.fa.fa-smile-o
+                    #chart
+                .col-sm-6
+                    h2 Balance Info
+                if user.account.balance > 15
+                    .form-inline.has-success
+                        .input-group.input-group-lg.bold
+                            .input-group-addon $
+                            input.form-control.form-control-success(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
+                        h3.text-success Your balance is good!
+                else if user.account.balance > 0
+                    .form-inline.has-warning
+                        .input-group.input-group-lg.bold
+                            .input-group-addon $
+                            input.bold.form-control.form-control-warning(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
+                        h3.text-warning Your balance is almost empty.
+                else
+                    .form-inline.has-danger
+                        .input-group.input-group-lg.bold
+                            .input-group-addon $
+                            input.form-control.form-control-danger(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
+                        h3.text-danger Your balance is empty!
+                    
             else
                 h1 Welcome!
+    script.
+        var user = !{JSON.stringify(user)};
+        var swearData = user.data.swear;
+        var currMoment = moment();
+        var startMoment = moment(swearData[0].date);
+        var len = currMoment.diff(startMoment, "days") + 1;
+        if (len > 7) {
+            len = 7;
+        }
+        
+        var count = 0;
+        var limit = ['limit'];
+        var swears = [];
+        for (var i = 0; i < len; i++) {
+            limit.push(user.account.dailySwearMax);
+        }
+        for (var i = swearData.length - 1; i >= 0; i--) {
+            var diff = currMoment.diff(swearData[i].date, "days");
+            console.log(diff);
+        }
+        swears.unshift('swears');
+        
+        var chart = c3.generate({
+            bindto: '#chart',
+            data: {
+                columns: [
+                    ['limit', 3, 3, 3, 3, 3, 3],
+                    ['swears', 2, 3, 5, 1, 3, 2]
+                ],
+                types: {
+                    limit: 'line',
+                    swears: 'area-spline' // 'line', 'spline', 'step', 'area', 'area-step' are also available to stack
+                },
+                colors: {
+                    limit: '#d62728',
+                    swears: '#ff7f0e'
+                },
+            }
+        });
