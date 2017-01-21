@@ -11,6 +11,23 @@ block content
         br
             
         h2
+            code POST /api/user/find
+            h4 Get user info from user id.
+            ul
+                h3 Fields
+                h4
+                    li
+                        code id
+                        | : MongoDB id of a user
+            ul
+                h3 Return
+                h4
+                    li
+                        code user
+                        | : user object containing all information about a user    
+        br
+
+        h2
             code POST /api/signup
             h4 Create a new local account.
             ul

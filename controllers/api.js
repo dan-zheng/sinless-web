@@ -18,6 +18,40 @@ exports.index = (req, res) => {
 };
 
 /**
+ * POST /api/user/find
+ * Get user info from user id.
+ */
+exports.postFindUser = (req, res, next) => {
+    req.assert('id', 'Id is empty/not valid.').notEmpty();
+
+    const errors = req.validationErrors();
+
+    if (errors) {
+        return res.status(400).json(errors);
+    }
+
+    User.findOne({ id: req.body.id }, (err, user) => {
+        if (!user) {
+            return res.status(400).json([{
+                msg: 'No user with that id exists.'
+            }]);
+        }
+        user.save((err) => {
+            if (err) {
+                return res.status(500).json([{
+                    msg: "Server failure."
+                }]);
+            }
+            req.logIn(user, (err) => {
+                return res.status(200).json({
+                    user: user
+                });
+            });
+        });
+    });
+};
+
+/**
  * POST /api/signup
  * Create a new local account.
  */
