@@ -12,7 +12,7 @@ block content
     else
         div.main.auth
             if user.profile.firstName
-                h1 Welcome, #{user.profile.firstName}!
+                h1 Welcome to your dashboard, #{user.profile.firstName}!
                 hr
                 .col-sm-6
                     h2 Swear Information
@@ -25,6 +25,7 @@ block content
                         else
                             h3 There is no swear info. 
                                 .i.fa.fa-smile-o
+                    #chart
                 .col-sm-6
                     h2 Balance Info
                 if user.account.balance > 15
