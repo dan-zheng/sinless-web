@@ -67,6 +67,9 @@ app.use(expressValidator({
     customValidators: {
         gt: function(param, num) {
             return param > num;
+        },
+        gte: function(param, num) {
+            return param >= num;
         }
     }
 }));
@@ -128,7 +131,7 @@ app.get('/account', passportConfig.isAuthenticated, userController.getAccount);
 app.post('/account/profile', passportConfig.isAuthenticated, userController.postUpdateProfile);
 app.post('/account/password', passportConfig.isAuthenticated, userController.postUpdatePassword);
 app.post('/account/delete', passportConfig.isAuthenticated, userController.postDeleteAccount);
-app.post('/account/balance', passportConfig.isAuthenticated, userController.postUpdateBalance);
+app.post('/account/goals', passportConfig.isAuthenticated, userController.postUpdateGoals);
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
 app.post('/pebble', userController.postPebble);
 
@@ -138,7 +141,6 @@ app.post('/pebble', userController.postPebble);
  app.post('/api/signup', apiController.postSignup);
 app.post('/api/login', apiController.postLogin);
 app.post('/api/account', apiController.postAccount);
-app.post('/api/account/balance', apiController.postBalance);
 
 /**
  * OAuth authentication routes. (Sign in)

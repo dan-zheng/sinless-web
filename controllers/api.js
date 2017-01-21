@@ -100,6 +100,10 @@ exports.postAccount = (req, res, next) => {
     req.assert('value', 'Value was not specified.').notEmpty();
     if (req.body.key == 'email' && req.body.value) {
         req.assert('value', 'Email value is not valid.').isEmail();
+    } else if (req.body.key == 'balance' && req.body.value) {
+        req.assert('value', 'Balance value was not specified/is not valid.').notEmpty().isFloat().gte(0);
+    } else if (req.body.key == 'dailySwearMax' && req.body.value) {
+        req.assert('value', 'Daily swear max value was not specified/is not valid.').notEmpty().isInt().gte(0);
     }
 
     const errors = req.validationErrors();
@@ -117,9 +121,13 @@ exports.postAccount = (req, res, next) => {
             return next(err);
         }
         if (key == 'email') {
-            user.email = value;
+            user[key] = value;
+        } else if (key == 'balance') {
+            user.account[key] = Math.round(parseFloat(req.body.value) * 100) / 100;
+        } else if (key == 'dailySwearMax') {
+            user.account[key] = value;
         } else if (key == 'firstName' || key == 'lastName' || key == 'location' || key == 'website') {
-            user.profile.key = value;
+            user.profile[key] = value;
         } else {
             return res.status(400).json([{
                 msg: "Invalid key."
@@ -129,49 +137,10 @@ exports.postAccount = (req, res, next) => {
             if (err) {
                 return next(err);
             }
+            console.log(user);
             return res.status(200).json({
-                msg: value + ' has been changed.'
-            });
-        });
-    });
-};
-
-/**
- * POST /api/account/balance
- * Deposit money to, or remove money from a user's account.
- */
-exports.postBalance = (req, res, next) => {
-    req.assert('id', 'User id was not specified.').notEmpty();
-    req.assert('value', 'Value was not specified/is not valid.').notEmpty().isFloat().gt(0);
-
-    const errors = req.validationErrors();
-
-    if (errors) {
-        return res.status(400).json(errors);
-    }
-
-    const id = req.body.id;
-    const value = Math.round(parseFloat(req.body.value) * 100) / 100;
-
-    User.findById(id, (err, user) => {
-        if (err) {
-            return next(err);
-        }
-        var balance = parseFloat(user.account.balance);
-        if (balance + value < 0) {
-            user.account.balance = 0;
-            return res.status(200).json({
-                msg: 'Balance has been changed to 0.'
-            });
-        }
-        user.account.balance = Math.round((balance + value) * 100) / 100;
-        user.save((err) => {
-            if (err) {
-                return next(err);
-            }
-            return res.status(200).json({
-                msg: 'Balance has been changed.',
-                balance: user.account.balance
+                msg: key + ' has been changed.',
+                value: value
             });
         });
     });

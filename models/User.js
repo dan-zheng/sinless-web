@@ -15,15 +15,16 @@ const userSchema = new mongoose.Schema({
 
     account: {
         balance: { type: Number, default: 0 },
-        dailySwearMax: { type: Number, default: 3 },
+        dailySwearMax: { type: Number, default: 3 }
     },
 
-
-
     data: {
-        swear: {
-
-        }
+        swear: [
+            {
+                date: Date,
+                numSwear: Number
+            }
+        ]
     },
 
     profile: {

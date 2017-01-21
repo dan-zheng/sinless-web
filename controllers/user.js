@@ -189,11 +189,12 @@ exports.postUpdatePassword = (req, res, next) => {
 };
 
 /**
- * POST /account/balance
- * Update user balance.
+ * POST /account/goals
+ * Update user goals.
  */
-exports.postUpdateBalance = (req, res, next) => {
-    req.assert('deposit', 'Value was not specified/is not valid.').notEmpty().isFloat().gt(0);
+exports.postUpdateGoals = (req, res, next) => {
+    req.assert('deposit', 'Value was not specified/is not valid.').notEmpty().isFloat().gte(0);
+    req.assert('dailySwearMax', 'Daily swear max was not specified/is not valid.').notEmpty().isInt().gte(0);
 
     const errors = req.validationErrors();
 
@@ -204,9 +205,10 @@ exports.postUpdateBalance = (req, res, next) => {
     User.findById(req.user.id, (err, user) => {
         if (err) { return next(err); }
         user.account.balance = Math.round((parseFloat(user.account.balance) + parseFloat(req.body.deposit)) * 100) / 100;
+        user.account.dailySwearMax = req.body.dailySwearMax;
         user.save((err) => {
             if (err) { return next(err); }
-            req.flash('success', { msg: 'Deposit has been added to account.', balance: user.account.balance });
+            req.flash('success', { msg: 'Goal information has been updated.' });
             res.redirect('/account');
         });
     });

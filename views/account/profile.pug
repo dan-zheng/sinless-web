@@ -41,9 +41,9 @@ block content
                     | Update Profile
                     
     .page-header
-        h3 Account Information
+        h3 Goal Information
         
-    form.form-horizontal(action='/account/balance', method='POST')
+    form.form-horizontal(action='/account/goals', method='POST')
         input(type='hidden', name='_csrf', value=_csrf)
         .form-group
             label.col-sm-3.control-label(for='balance') Current balance
@@ -55,6 +55,10 @@ block content
             .col-sm-3.input-group
                 .input-group-addon $
                 input.form-control(type='number', step='0.01', min='0', name='deposit', id='deposit', placeholder='Amount', value='0.00')
+        .form-group
+            label.col-sm-3.control-label(for='dailySwearMax') Daily swear maximum
+            .col-sm-3.input-group
+                input.form-control(type='number', name='dailySwearMax', id='dailySwearMax', value=user.account.dailySwearMax)
         .form-group
             .col-sm-offset-3.col-sm-4
                 button.btn.btn.btn-primary(type='submit')
