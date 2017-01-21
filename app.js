@@ -142,7 +142,7 @@ app.post('/pebble', userController.postPebble);
  * API routes.
  */
 app.get('/api', apiController.index);
-app.post('/api/user/find', apiController.postFindUser);
+app.post('/api/user/data', apiController.postGetUserData);
 app.post('/api/signup', apiController.postSignup);
 app.post('/api/signup/hack', apiController.postSignupHack);
 app.post('/api/login', apiController.postLogin);
