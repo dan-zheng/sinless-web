@@ -1,0 +1,133 @@
+extends ../layout
+
+block content
+    div
+        .page-header
+            h1 SinLess API
+
+        h2
+            code GET /api
+            h4 API home page.
+        br
+            
+        h2
+            code POST /api/signup
+            h4 Create a new local account.
+            ul
+                h3 Fields
+                h4
+                    li
+                        code firstName
+                        | : first name of user, must have length > 0
+                    li
+                        code lastName
+                        | : last name of user, must have length > 0
+                    li
+                        code email
+                        | : email of user, must be a valid email
+                    li
+                        code password
+                        | : user password, must contain at least 4 characters
+                    li
+                        code confirmPassword
+                        | : must be equal to password field
+            ul
+                h3 Return
+                h4
+                    li
+                        code user
+                        | : user object containing all information about a user
+                            
+        br
+            
+        h2
+            code POST /api/signup/hack
+            h4 Create a new local account with good data for demo purposes.
+            ul
+                h3 Fields
+                h4
+                    li
+                        code firstName
+                        | : (optional) first name of user, must have length > 0, default is "Buzz"
+                    li
+                        code lastName
+                        | : (optional) last name of user, must have length > 0, default is "Lightyear"
+                    li
+                        code email
+                        | : (optional) email of user, must be a valid email, default is "a@a.com"
+                    li
+                        code password
+                        | : (optional) user password, must contain at least 4 characters, default is "asdf"
+            ul
+                h3 Return
+                h4
+                    li
+                        code user
+                        | : user object containing all information about a user
+            
+        br
+            
+        h2
+            code POST /api/login
+            h4 Sign in to API using email and password.
+            ul
+                h3 Fields
+                h4
+                    li
+                        code email
+                        | : email of user, must be a valid email
+                    li
+                        code password
+                        | : user password, must contain at least 4 characters
+            ul
+                h3 Return
+                h4
+                    li
+                        code user
+                        | : user object containing all information about a user
+        br
+            
+        h2
+            code POST /api/account
+            h4 Update account info.
+            ul
+                h3 Fields
+                h4
+                    li
+                        code id
+                        | : MongoDB id of a user
+                    li
+                        code key
+                        | : name of the account info field to change
+                    li
+                        code value
+                        | : value of the account info field to change
+            ul
+                h3 Return
+                h4
+                    li
+                        code msg
+                        | : success message
+                    li
+                        code value
+                        | : new value of field
+        br
+        
+        h2
+            code POST /api/account/action
+            h4 Update actions for a user.
+            ul
+                h3 Fields
+                h4
+                    li
+                        code id
+                        | : MongoDB id of a user
+                    li
+                        code type
+                        | : type of action ("swear", "timer")
+            ul
+                h3 Return
+                h4
+                    li
+                        code msg
+                        | : success message
