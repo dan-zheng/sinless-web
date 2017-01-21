@@ -9,33 +9,21 @@ block content
         .form-group
             label.col-sm-3.control-label(for='name') Name
             .col-sm-3
-                input.form-control(type='text', name='firstName', id='firstName', placeholder='First', value='#{user.profile.firstName}')
+                input.form-control(type='text', name='firstName', id='firstName', placeholder='First', value=user.profile.firstName)
             .col-sm-3
-                input.form-control(type='text', name='lastName', id='lastName', placeholder='Last', value='#{user.profile.lastName}')
+                input.form-control(type='text', name='lastName', id='lastName', placeholder='Last', value=user.profile.lastName)
         .form-group
             label.col-sm-3.control-label(for='email') Email
             .col-sm-6
-                input.form-control(type='email', name='email', id='email', value='#{user.email}')
-        .form-group
-            label.col-sm-3.control-label(for='gender') Gender
-            .col-sm-6
-                label.radio.col-sm-3
-                    input(type='radio', checked=user.profile.gender=='male', name='gender', value='male', data-toggle='radio')
-                    span Male
-                label.radio.col-sm-3
-                    input(type='radio', checked=user.profile.gender=='female', name='gender', value='female', data-toggle='radio')
-                    span Female
-                label.radio.col-sm-3
-                    input(type='radio', checked=user.profile.gender=='other', name='gender', value='other', data-toggle='radio')
-                    span Other
+                input.form-control(type='email', name='email', id='email', value=user.email)
         .form-group
             label.col-sm-3.control-label(for='location') Location
             .col-sm-6
-                input.form-control(type='text', name='location', id='location', value='#{user.profile.location}')
+                input.form-control(type='text', name='location', id='location', value=user.profile.location)
         .form-group
             label.col-sm-3.control-label(for='website') Website
             .col-sm-6
-                input.form-control(type='text', name='website', id='website', value='#{user.profile.website}')
+                input.form-control(type='text', name='website', id='website', value=user.profile.website)
         if !user.profile.picture
             .form-group
                 label.col-sm-3.control-label(for='identicon') Identicon
@@ -97,8 +85,3 @@ block content
                     p: a.text-danger(href='/account/unlink/facebook') Unlink your Facebook account
                 else
                     p: a(href='/auth/facebook') Link your Facebook account
-            .col-sm-offset-3.col-sm-4
-                if user.github
-                    p: a.text-danger(href='/account/unlink/github') Unlink your GitHub account
-                else
-                    p: a(href='/auth/github') Link your GitHub account
