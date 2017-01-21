@@ -141,6 +141,7 @@ app.post('/pebble', userController.postPebble);
  app.post('/api/signup', apiController.postSignup);
 app.post('/api/login', apiController.postLogin);
 app.post('/api/account', apiController.postAccount);
+app.post('/api/account/action/swear', apiController.postActionSwear);
 
 /**
  * OAuth authentication routes. (Sign in)

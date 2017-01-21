@@ -16,14 +16,6 @@ block content
             label.col-sm-3.control-label(for='email') Email
             .col-sm-6
                 input.form-control(type='email', name='email', id='email', value=user.email)
-        .form-group
-            label.col-sm-3.control-label(for='location') Location
-            .col-sm-6
-                input.form-control(type='text', name='location', id='location', value=user.profile.location)
-        .form-group
-            label.col-sm-3.control-label(for='website') Website
-            .col-sm-6
-                input.form-control(type='text', name='website', id='website', value=user.profile.website)
         if !user.profile.picture
             .form-group
                 label.col-sm-3.control-label(for='identicon') Identicon

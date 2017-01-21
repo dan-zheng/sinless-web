@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
 const identicon = require('identicon.js');
 const mongoose = require('mongoose');
+require('mongoose-moment')(mongoose);
 
 const userSchema = new mongoose.Schema({
     email: { type: String, unique: true },
@@ -21,8 +22,8 @@ const userSchema = new mongoose.Schema({
     data: {
         swear: [
             {
-                date: Date,
-                numSwear: Number
+                date: 'Moment',
+                swearCount: Number
             }
         ]
     },

@@ -1,5 +1,7 @@
 const validator = require('validator');
 const passport = require('passport');
+const mongoose = require('mongoose');
+const moment = require('moment');
 
 const User = require('../models/User');
 
@@ -118,7 +120,14 @@ exports.postAccount = (req, res, next) => {
 
     User.findById(id, (err, user) => {
         if (err) {
-            return next(err);
+            return res.status(500).json([{
+                msg: "Server failure."
+            }]);
+        }
+        if (!user) {
+            return res.status(400).json([{
+                msg: "User could not be found."
+            }]);
         }
         if (key == 'email') {
             user[key] = value;
@@ -135,12 +144,54 @@ exports.postAccount = (req, res, next) => {
         }
         user.save((err) => {
             if (err) {
-                return next(err);
+                return res.status(500).json([{
+                    msg: "Server failure."
+                }]);
             }
-            console.log(user);
             return res.status(200).json({
                 msg: key + ' has been changed.',
                 value: value
+            });
+        });
+    });
+};
+
+/**
+ * POST /api/account/action/swear
+ * Update daily swear count.
+ */
+exports.postActionSwear = (req, res, next) => {
+    req.assert('id', 'User id was not specified.').notEmpty();
+
+    const errors = req.validationErrors();
+
+    if (errors) {
+        return res.status(400).json(errors);
+    }
+    var count = req.body.count || 1;
+    User.findById(req.body.id, (err, user) => {
+        if (err) {
+            return res.status(500).json([{
+                msg: "Server failure."
+            }]);
+        }
+        if (!user) {
+            return res.status(400).json([{
+                msg: "User could not be found."
+            }]);
+        }
+        var currDate = moment();
+
+        user.data.swear.push({
+            date: currDate,
+            swearCount: count
+        });
+        user.save((err) => {
+            if (err) {
+                return next(err);
+            }
+            return res.status(200).json({
+                msg: 'Swear data has been updated.'
             });
         });
     });
