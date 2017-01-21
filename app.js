@@ -135,6 +135,7 @@ app.post('/pebble', userController.postPebble);
 /**
  * API routes.
  */
+ app.post('/api/signup', apiController.postSignup);
 app.post('/api/login', apiController.postLogin);
 app.post('/api/account', apiController.postAccount);
 app.post('/api/account/balance', apiController.postBalance);

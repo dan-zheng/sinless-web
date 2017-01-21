@@ -189,24 +189,11 @@ exports.postUpdatePassword = (req, res, next) => {
 };
 
 /**
- * POST /account/delete
- * Delete user account.
- */
-exports.postDeleteAccount = (req, res, next) => {
-    User.remove({ _id: req.user.id }, (err) => {
-        if (err) { return next(err); }
-        req.logout();
-        req.flash('info', { msg: 'Your account has been deleted.' });
-        res.redirect('/');
-    });
-};
-
-/**
  * POST /account/balance
  * Update user balance.
  */
 exports.postUpdateBalance = (req, res, next) => {
-    req.assert('deposit', 'Deposit amount must be positive.').gt(0);
+    req.assert('deposit', 'Value was not specified/is not valid.').notEmpty().isFloat().gt(0);
 
     const errors = req.validationErrors();
 
@@ -216,12 +203,25 @@ exports.postUpdateBalance = (req, res, next) => {
     }
     User.findById(req.user.id, (err, user) => {
         if (err) { return next(err); }
-        user.account.balance += parseFloat(req.body.deposit);
+        user.account.balance = Math.round((parseFloat(user.account.balance) + parseFloat(req.body.deposit)) * 100) / 100;
         user.save((err) => {
             if (err) { return next(err); }
-            req.flash('success', { msg: 'Deposit has been added to account.' });
+            req.flash('success', { msg: 'Deposit has been added to account.', balance: user.account.balance });
             res.redirect('/account');
         });
+    });
+};
+
+/**
+ * POST /account/delete
+ * Delete user account.
+ */
+exports.postDeleteAccount = (req, res, next) => {
+    User.remove({ _id: req.user.id }, (err) => {
+        if (err) { return next(err); }
+        req.logout();
+        req.flash('info', { msg: 'Your account has been deleted.' });
+        res.redirect('/');
     });
 };
 
