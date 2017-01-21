@@ -28,6 +28,7 @@ dotenv.load({ path: '.env' });
 const homeController = require('./controllers/home');
 const userController = require('./controllers/user');
 const contactController = require('./controllers/contact');
+const apiController = require('./controllers/api');
 
 /**
  * API keys and Passport configuration.
@@ -64,9 +65,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressValidator({
     customValidators: {
-        isArray: function(value) {
-            var array = value.split(/[\s,]+/).filter(n => n !== undefined && n !== "");
-            return (Array.isArray(array) && array.length > 0);
+        gt: function(param, num) {
+            return param > num;
         }
     }
 }));
@@ -83,10 +83,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 app.use((req, res, next) => {
-    if (req.path === '/api/upload') {
+    if (req.path === '/pebble') {
         next();
     } else {
-        lusca.csrf()(req, res, next);
+        next();
+        //lusca.csrf()(req, res, next);
     }
 });
 app.use(lusca.xframe('SAMEORIGIN'));
@@ -127,7 +128,14 @@ app.get('/account', passportConfig.isAuthenticated, userController.getAccount);
 app.post('/account/profile', passportConfig.isAuthenticated, userController.postUpdateProfile);
 app.post('/account/password', passportConfig.isAuthenticated, userController.postUpdatePassword);
 app.post('/account/delete', passportConfig.isAuthenticated, userController.postDeleteAccount);
+app.post('/account/balance', passportConfig.isAuthenticated, userController.postUpdateBalance);
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
+app.post('/pebble', userController.postPebble);
+
+/**
+ * API routes.
+ */
+app.post('/api/login', apiController.postLogin);
 
 /**
  * OAuth authentication routes. (Sign in)
