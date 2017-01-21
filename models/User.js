@@ -11,8 +11,11 @@ const userSchema = new mongoose.Schema({
 
     facebook: String,
     google: String,
-    github: String,
     tokens: Array,
+
+    account: {
+        balance: { type: Number, default: 0 }
+    },
 
     profile: {
         firstName: { type: String, default: '' },
