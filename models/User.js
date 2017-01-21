@@ -2,7 +2,10 @@ const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
 const identicon = require('identicon.js');
 const mongoose = require('mongoose');
+const moment = require('moment');
 require('mongoose-moment')(mongoose);
+
+const Action = require('../models/Action');
 
 const userSchema = new mongoose.Schema({
     email: { type: String, unique: true },
@@ -16,17 +19,21 @@ const userSchema = new mongoose.Schema({
 
     account: {
         balance: { type: Number, default: 0 },
-        dailySwearMax: { type: Number, default: 3 }
+        dailySwearMax: { type: Number, default: 3 },
+        dailyTimerMax: { type: Number, default: 1},
+        timeOfLastText: { type: 'Moment', default: moment() }
     },
 
-    data: {
-        swear: [
-            {
-                date: 'Moment',
-                swearCount: Number
-            }
-        ]
-    },
+    data: [{
+        date: 'Moment',
+        swearCount: { type: Number, default: 0 },
+        timerCount: { type: Number, default: 0 },
+        actions: [{
+            time: 'Moment',
+            actionType: String,
+            amountDeducted: Number
+        }]
+    }],
 
     profile: {
         firstName: { type: String, default: '' },

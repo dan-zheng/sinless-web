@@ -70,6 +70,9 @@ app.use(expressValidator({
         },
         gte: function(param, num) {
             return param >= num;
+        },
+        isValidActionType: function(param) {
+            return param && (param == 'swear' || param == 'timer');
         }
     }
 }));
@@ -141,7 +144,7 @@ app.post('/pebble', userController.postPebble);
  app.post('/api/signup', apiController.postSignup);
 app.post('/api/login', apiController.postLogin);
 app.post('/api/account', apiController.postAccount);
-app.post('/api/account/action/swear', apiController.postActionSwear);
+app.post('/api/account/action', apiController.postAction);
 
 /**
  * OAuth authentication routes. (Sign in)

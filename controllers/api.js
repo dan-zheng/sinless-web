@@ -2,6 +2,7 @@ const validator = require('validator');
 const passport = require('passport');
 const mongoose = require('mongoose');
 const moment = require('moment');
+const chance = new require('chance')();
 
 const User = require('../models/User');
 
@@ -34,6 +35,45 @@ exports.postSignup = (req, res, next) => {
 
     User.findOne({ email: req.body.email }, (err, existingUser) => {
         if (existingUser) {
+            return res.status(400).json([{
+                msg: 'Account with that email address already exists.'
+            }]);
+        }
+        user.save((err) => {
+            if (err) {
+                return res.status(500).json([{
+                    msg: "Server failure."
+                }]);
+            }
+            req.logIn(user, (err) => {
+                return res.status(200).json({
+                    user: user
+                });
+            });
+        });
+    });
+};
+
+/**
+ * POST /api/signup/hack
+ * Create a new local account with good dates.
+ */
+exports.postSignupHack = (req, res, next) => {
+    const user = new User({
+        profile: {
+            firstName: "John",
+            lastName: "Smith"
+        },
+        email: "a@a.com",
+        password: "asdf"
+    });
+
+    User.findOne({ email: "a@a.com" }, (err, existingUser) => {
+        if (existingUser) {
+            existingUser.data.swear = [];
+            for (var i = 0; i < 7; i++) {
+
+            }
             return res.status(400).json([{
                 msg: 'Account with that email address already exists.'
             }]);
@@ -157,17 +197,19 @@ exports.postAccount = (req, res, next) => {
 };
 
 /**
- * POST /api/account/action/swear
- * Update daily swear count.
+ * POST /api/account/action/
+ * Update actions for a user.
  */
-exports.postActionSwear = (req, res, next) => {
+exports.postAction = (req, res, next) => {
     req.assert('id', 'User id was not specified.').notEmpty();
+    req.assert('type', 'Action type is not valid.').isValidActionType();
 
     const errors = req.validationErrors();
 
     if (errors) {
         return res.status(400).json(errors);
     }
+
     var count = req.body.count || 1;
     User.findById(req.body.id, (err, user) => {
         if (err) {
@@ -180,18 +222,91 @@ exports.postActionSwear = (req, res, next) => {
                 msg: "User could not be found."
             }]);
         }
-        var currDate = moment();
+        var currDate;
+        if (!req.body.time) {
+            currDate = moment();
 
-        user.data.swear.push({
-            date: currDate,
-            swearCount: count
-        });
+        } else {
+            currDate = moment(req.body.time);
+        }
+        var currDateStart = moment(currDate);
+        currDateStart = currDateStart.startOf('day');
+
+        var count = user.data.length - 1;
+        while (true) {
+            var entry = user.data[count];
+            if (user.data.length === 0 || entry.date.isBefore(currDateStart, 'day')) {
+                user.data.splice(count + 1, 0, {
+                    date: currDateStart,
+                    swearCount: 0,
+                    timerCount: 0,
+                    actions: []
+                });
+                console.log(user.data);
+                entry = user.data[count + 1];
+                var penalty = 0;
+                if (req.body.type == 'swear') {
+                    if (entry.swearCount == user.account.dailySwearMax) {
+                        penalty = 1;
+                    } else {
+                        entry.swearCount++;
+                    }
+                } else if (req.body.type == 'timer') {
+                    if (entry.timerCount == user.account.dailyTimerMax) {
+                        penalty = 1;
+                    } else {
+                        entry.timerCount++;
+                    }
+                } else {
+                    return res.status(400).json([{
+                        msg: "Action type is not valid."
+                    }]);
+                }
+                entry.actions.push({
+                    time: currDate,
+                    actionType: req.body.type,
+                    amountDeducted: penalty
+                });
+                break;
+            } else if (entry.date.isSame(currDateStart, 'day')) {
+                // TODO: Account for time differences
+                // var count2 = entry.actions.length - 1;
+                var penalty = 0;
+                if (req.body.type == 'swear') {
+                    if (entry.swearCount == user.account.dailySwearMax) {
+                        penalty = 1;
+                    } else {
+                        entry.swearCount++;
+                    }
+                } else if (req.body.type == 'timer') {
+                    if (entry.timerCount == user.account.dailyTimerMax) {
+                        penalty = 1;
+                    } else {
+                        entry.timerCount++;
+                    }
+                } else {
+                    return res.status(400).json([{
+                        msg: "Action type is not valid."
+                    }]);
+                }
+                entry.actions.push({
+                    time: currDate,
+                    actionType: req.body.type,
+                    amountDeducted: penalty
+                });
+                break;
+            } else if (entry.date.isAfter(currDateStart, 'day')) {
+                count--;
+            }
+        }
         user.save((err) => {
             if (err) {
-                return next(err);
+                return res.status(500).json([{
+                    msg: "Server failure."
+                }]);
             }
             return res.status(200).json({
-                msg: 'Swear data has been updated.'
+                msg: 'Action data has been updated.'
             });
         });
     });

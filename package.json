@@ -13,6 +13,7 @@
     "async": "^2.0.0",
     "bcrypt-nodejs": "^0.0.3",
     "body-parser": "^1.15.2",
+    "chance": "^1.0.4",
     "cheerio": "^0.20.0",
     "compression": "^1.6.2",
     "connect-mongo": "^1.2.1",

@@ -16,14 +16,15 @@ block content
                 hr
                 .col-sm-6
                     h2 Swear Information
-                        if user.data.swear.length > 0
-                            each entry in user.data.swear
+                        if user.data.length > 0
+                            each entry in user.data
                                 h3= entry.date.format("MMM D, Y")
-                                p= entry.date.format("h:m A")
-                                    | : 
-                                    span.red.bold= '+' + entry.swearCount
+                                each action in entry.actions
+                                    p= action.time.format("h:m A")
+                                        | : #{action.actionType}, 
+                                        span.red.bold= '+' + action.amountDeducted
                         else
-                            h3 There is no swear info. 
+                            h3 There is no negative data. 
                                 .i.fa.fa-smile-o
                     #chart
                 .col-sm-6
@@ -49,3 +50,42 @@ block content
                     
             else
                 h1 Welcome!
+    script.
+        var user = !{JSON.stringify(user)};
+        var swearData = user.data.swear;
+        var currMoment = moment();
+        var startMoment = moment(swearData[0].date);
+        var len = currMoment.diff(startMoment, "days") + 1;
+        if (len > 7) {
+            len = 7;
+        }
+        
+        var count = 0;
+        var limit = ['limit'];
+        var swears = [];
+        for (var i = 0; i < len; i++) {
+            limit.push(user.account.dailySwearMax);
+        }
+        for (var i = swearData.length - 1; i >= 0; i--) {
+            var diff = currMoment.diff(swearData[i].date, "days");
+            console.log(diff);
+        }
+        swears.unshift('swears');
+        
+        var chart = c3.generate({
+            bindto: '#chart',
+            data: {
+                columns: [
+                    ['limit', 3, 3, 3, 3, 3, 3],
+                    ['swears', 2, 3, 5, 1, 3, 2]
+                ],
+                types: {
+                    limit: 'line',
+                    swears: 'area-spline' // 'line', 'spline', 'step', 'area', 'area-step' are also available to stack
+                },
+                colors: {
+                    limit: '#d62728',
+                    swears: '#ff7f0e'
+                },
+            }
+        });
