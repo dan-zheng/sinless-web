@@ -5,8 +5,6 @@ const mongoose = require('mongoose');
 const moment = require('moment');
 require('mongoose-moment')(mongoose);
 
-const Action = require('../models/Action');
-
 const userSchema = new mongoose.Schema({
     email: { type: String, unique: true },
     password: String,
