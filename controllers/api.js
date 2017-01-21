@@ -8,8 +8,8 @@ const User = require('../models/User');
  * Create a new local account.
  */
 exports.postSignup = (req, res, next) => {
-    req.assert('firstName', 'First name was not valid.').notEmpty();
-    req.assert('lastName', 'Last name was not valid.').notEmpty();
+    req.assert('firstName', 'First name is not valid.').notEmpty();
+    req.assert('lastName', 'Last name is not valid.').notEmpty();
     req.assert('email', 'Email is not valid.').isEmail();
     req.assert('password', 'Password must be at least 4 characters long.').len(4);
     req.assert('confirmPassword', 'Passwords do not match.').equals(req.body.password);
