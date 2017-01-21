@@ -29,9 +29,9 @@
                     li.dropdown(class=(title == 'Account Management') ? 'active' : undefined)
                         a.dropdown-toggle(href='#', data-toggle='dropdown')
                             if user.profile.picture
-                                img(src='#{user.profile.picture}')
+                                img(src=user.profile.picture)
                             else
-                                img(src='#{user.identicon(60)}')
+                                img(src=user.identicon(60))
                             if user.profile.firstName && user.profile.lastName
                                 | #{user.profile.firstName} #{user.profile.lastName}&nbsp;
                             else
