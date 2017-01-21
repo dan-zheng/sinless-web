@@ -17,7 +17,6 @@ exports.index = (req, res) => {
     });
 };
 
-
 /**
  * POST /api/signup
  * Create a new local account.
@@ -68,18 +67,20 @@ exports.postSignup = (req, res, next) => {
 
 /**
  * POST /api/signup/hack
- * Create a new local account with good dates.
+ * Create a new local account with good data for demo purposes.
  */
 exports.postSignupHack = (req, res, next) => {
     const email = req.body.email || "a@a.com";
     const password = req.body.password || "asdf";
+    const firstName = req.body.firstName || "Buzz";
+    const lastName = req.body.firstName || "Lightyear";
     const user = new User({
         profile: {
-            firstName: "John",
-            lastName: "Smith"
+            firstName: firstName,
+            lastName: lastName
         },
-        email: "a@a.com",
-        password: "12345"
+        email: email,
+        password: password
     });
 
     var numOfActions = req.body.numOfActions || 3;
@@ -305,6 +306,8 @@ exports.postAction = (req, res, next) => {
     req.assert('id', 'User id was not specified.').notEmpty();
     req.assert('type', 'Action type is not valid.').isValidActionType();
 
+    console.log(req.body);
+
     const errors = req.validationErrors();
 
     if (errors) {
@@ -328,10 +331,13 @@ exports.postAction = (req, res, next) => {
             currDate = moment();
 
         } else {
-            currDate = moment(req.body.time);
+            currDate = moment(parseInt(req.body.time));
         }
         var currDateStart = moment(currDate);
         currDateStart = currDateStart.startOf('day');
+        console.log("currDate: " + currDate);
+        console.log("currDate.valueOf(): " + currDate.valueOf());
+        console.log("currDateStart: " + currDateStart);
 
         var count = user.data.length - 1;
         while (true) {

@@ -52,9 +52,9 @@ block content
                 h1 Welcome!
     script.
         var user = !{JSON.stringify(user)};
-        var swearData = user.data.swear;
+        var data = user.data;
         var currMoment = moment();
-        var startMoment = moment(swearData[0].date);
+        var startMoment = moment(data[data.length - 1].date);
         var len = currMoment.diff(startMoment, "days") + 1;
         if (len > 7) {
             len = 7;
@@ -63,29 +63,49 @@ block content
         var count = 0;
         var limit = ['limit'];
         var swears = [];
+        var dates = [];
         for (var i = 0; i < len; i++) {
             limit.push(user.account.dailySwearMax);
         }
-        for (var i = swearData.length - 1; i >= 0; i--) {
-            var diff = currMoment.diff(swearData[i].date, "days");
-            console.log(diff);
+        for (var i = data.length - 1; i >= 0; i--) {
+            console.log(data[i]);
+            var diff = currMoment.diff(data[i].date, "days");
+            swears.push(data[i].swearCount);
+            dates.push(moment(data[i].date).format("MM-DD"));
+            console.log("diff: " + diff);
         }
         swears.unshift('swears');
+        dates.unshift('dates');
         
         var chart = c3.generate({
             bindto: '#chart',
+            title: {
+                text: 'Swears vs Time'
+            },
             data: {
+                x: 'dates',
+                xFormat: '%m-%d',
                 columns: [
-                    ['limit', 3, 3, 3, 3, 3, 3],
-                    ['swears', 2, 3, 5, 1, 3, 2]
+                    dates,
+                    limit,
+                    swears
                 ],
                 types: {
-                    limit: 'line',
+                    limit: 'area-spline',
                     swears: 'area-spline' // 'line', 'spline', 'step', 'area', 'area-step' are also available to stack
                 },
                 colors: {
                     limit: '#d62728',
                     swears: '#ff7f0e'
                 },
+                labels: true
+            },
+            axis: {
+                x: {
+                    type: 'timeseries',
+                    tick: {
+                        format: '%m-%d'
+                    }
+                }
             }
         });
