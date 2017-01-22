@@ -518,7 +518,7 @@ exports.postAction = (req, res, next) => {
                 // TODO: Account for time differences
                 // var count2 = entry.actions.length - 1;
                 for (let k = 0; k < entry.actions.length; k++) {
-                    if (moment(entry.actions.k.time).isSame(currDate)) {
+                    if (moment(entry.actions[k]time).isSame(currDate)) {
                         return res.status(200).json({
                             msg: 'Action with same time already exists.'
                         });
