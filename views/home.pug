@@ -39,6 +39,7 @@ block content
                         h2 Deposit Money
                         form.form-inline(action='/account/goals', method='POST')
                             input(type='hidden', name='dailySwearMax', value=user.account.dailySwearMax)
+                            input(type='hidden', name='dailyTimerMax', value=user.account.dailyTimerMax)
                             input(type='hidden', name='home', value="true")
                             .input-group.input-group-lg.bold
                                 .input-group-addon $

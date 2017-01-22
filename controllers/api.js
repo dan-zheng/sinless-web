@@ -173,6 +173,7 @@ exports.postSignupHack = (req, res, next) => {
                         change = 1;
                         existingUser.account.balance = Math.max(0, user.account.balance - 1);
                         entry.totalMoneyEarned += 1;
+                        entry.timerDoneCount++;
                     }
                     temp2 = moment(temp2).add(5, 'minutes');
                     existingUser.data[i].actions.push({
@@ -222,15 +223,16 @@ exports.postSignupHack = (req, res, next) => {
                     type = 'timer';
                     if (entry.timerCount >= user.account.dailyTimerMax) {
                         change = 1;
-                        existingUser.account.balance = Math.max(0, user.account.balance - 1);
+                        user.account.balance = Math.max(0, user.account.balance - 1);
                         entry.totalMoneyLost += 1;
                     }
                     entry.timerCount++;
                 } else {
                     type = 'timerDone';
                     change = 1;
-                    existingUser.account.balance = Math.max(0, user.account.balance - 1);
+                    user.account.balance = Math.max(0, user.account.balance - 1);
                     entry.totalMoneyEarned += 1;
+                    entry.timerDoneCount++;
                 }
                 temp2 = moment(temp2).add(5, 'minutes');
                 user.data[i].actions.push({
@@ -385,7 +387,6 @@ exports.postAction = (req, res, next) => {
             }]);
         }
         if (!user) {
-            console.log(errors);
             return res.status(400).json([{
                 msg: "User could not be found."
             }]);
