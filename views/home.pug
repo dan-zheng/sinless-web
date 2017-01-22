@@ -126,13 +126,16 @@ block content
                         swearLimit,
                         swears
                     ],
+                    type: 'area-spline',
+                    /*
                     types: {
                         swearLimit: 'area-spline',
                         swears: 'area-spline',
                     },
+                    */
                     colors: {
-                        limit: '#d62728',
-                        swears: '#ff7f0e'
+                        limit: '#333333',
+                        swears: '#d62728'
                     },
                     labels: true
                 },
@@ -160,15 +163,11 @@ block content
                         timers,
                         timersDone,
                     ],
-                    types: {
-                        timerLimit: 'area-spline',
-                        timers: 'area-spline',
-                        timersDone: 'area-spline' // 'line', 'spline', 'step', 'area', 'area-step' are also available to stack
-                    },
+                    type: 'area-spline',
                     colors: {
-                        timerLimit: '#d62728',
-                        timers: '#c94040',
-                        timersDone: '#16f170'
+                        limit: '#333333',
+                        fail: '#d62728',
+                        success: '#16f170'
                         //timers: '#ff7f0e'
                     },
                     labels: true

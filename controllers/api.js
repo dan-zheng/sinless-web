@@ -153,18 +153,26 @@ exports.postSignupHack = (req, res, next) => {
                 for (var j = 0; j < numOfActions; j++) {
                     var change = 0;
                     var type;
-                    if (Math.random() < 0.5) {
+                    var rand = Math.random();
+                    if (rand < 0.4) {
                         type = 'swear';
                         if (entry.swearCount >= user.account.dailySwearMax) {
                             change = 1;
                         }
                         entry.swearCount++;
-                    } else {
+                    } else if (rand > 0.4 && rand < 0.8) {
                         type = 'timer';
                         if (entry.timerCount >= user.account.dailyTimerMax) {
                             change = 1;
+                            existingUser.account.balance = Math.max(0, user.account.balance - 1);
+                            entry.totalMoneyLost += 1;
                         }
                         entry.timerCount++;
+                    } else {
+                        type = 'timerDone';
+                        change = 1;
+                        existingUser.account.balance = Math.max(0, user.account.balance - 1);
+                        entry.totalMoneyEarned += 1;
                     }
                     temp2 = moment(temp2).add(5, 'minutes');
                     existingUser.data[i].actions.push({
@@ -203,22 +211,26 @@ exports.postSignupHack = (req, res, next) => {
             for (let j = 0; j < numOfActions; j++) {
                 let change = 0;
                 let type;
-                if (Math.random() < 0.5) {
+                let rand = Math.random();
+                if (rand < 0.4) {
                     type = 'swear';
                     if (entry.swearCount >= user.account.dailySwearMax) {
                         change = 1;
-                        user.account.balance = Math.max(0, user.account.balance - 0.25);
-                        user.account.totalMoneyLost += 0.25;
                     }
                     entry.swearCount++;
-                } else {
+                } else if (rand > 0.4 && rand < 0.8) {
                     type = 'timer';
                     if (entry.timerCount >= user.account.dailyTimerMax) {
                         change = 1;
-                        user.account.balance = Math.max(0, user.account.balance - 1);
-                        user.account.totalMoneyLost += 1;
+                        existingUser.account.balance = Math.max(0, user.account.balance - 1);
+                        entry.totalMoneyLost += 1;
                     }
                     entry.timerCount++;
+                } else {
+                    type = 'timerDone';
+                    change = 1;
+                    existingUser.account.balance = Math.max(0, user.account.balance - 1);
+                    entry.totalMoneyEarned += 1;
                 }
                 temp2 = moment(temp2).add(5, 'minutes');
                 user.data[i].actions.push({
@@ -361,6 +373,7 @@ exports.postAction = (req, res, next) => {
     const errors = req.validationErrors();
 
     if (errors) {
+        console.log(errors);
         return res.status(400).json(errors);
     }
 
@@ -372,6 +385,7 @@ exports.postAction = (req, res, next) => {
             }]);
         }
         if (!user) {
+            console.log(errors);
             return res.status(400).json([{
                 msg: "User could not be found."
             }]);
