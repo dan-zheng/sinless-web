@@ -62,6 +62,7 @@ body {
 }
 
 .unauth {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 3px 5px rgba(0, 0, 0, 0.2);
     h1 {
         text-align: center;
         font-family: $title-font-family;
@@ -136,71 +137,6 @@ body {
     }
 }
 
-.about {
-    h1 {
-        text-align: center;
-        font-family: $title-font-family;
-        font-weight: bold;
-        padding: $title-font-size * 0.5 * 0.3 0px;
-        font-size: $title-font-size * 0.3;
-        @media (min-width: $screen-xs-min) {
-            font-size: $title-font-size * 0.5;
-            padding: $title-font-size * 0.5 * 0.5 0px;
-        }
-        @media (min-width: $screen-sm-min) {
-            font-size: $title-font-size * 0.7;
-            padding: $title-font-size * 0.5 * 0.7 0px;
-        }
-        @media (min-width: $screen-md-min) {
-            font-size: $title-font-size * 0.85;
-            padding: $title-font-size * 0.5 * 0.85 0px;
-        }
-        @media (min-width: $screen-lg-min) {
-            font-size: $title-font-size;
-            padding: $title-font-size * 0.5 0px;
-        }
-        .emph {
-            font-style: italic;
-        }
-    }
-    p {
-        font-family: "Roboto";
-        font-weight: normal;
-        padding: $subtitle-font-size * 0.5 * 0.6 0px;
-        font-size: $subtitle-font-size * 0.6;
-        @media (min-width: $screen-sm-min) {
-            font-size: $subtitle-font-size * 0.7;
-            padding: $subtitle-font-size * 0.5 * 0.7 0px;
-        }
-        @media (min-width: $screen-lg-min) {
-            font-size: $subtitle-font-size;
-            padding: $subtitle-font-size * 0.5 0px;
-        }
-        .emph {
-                font-style: italic;
-        }
-    }
-    .team-member {
-        img {
-            height: $about-image-height * 0.6;
-            width: $about-image-height * 0.6;
-            @media (min-width: $screen-sm-min) {
-                height: $about-image-height * 0.8;
-                width: $about-image-height * 0.8;
-            }
-            @media (min-width: $screen-lg-min) {
-                height: $about-image-height;
-                width: $about-image-height;
-            }
-            border: 5px solid $brand-primary;
-            border-radius: 50%;
-        }
-        p {
-            margin-top: 10px;
-        }
-    }
-}
-
 footer {
     position: absolute;
     bottom: 0;
@@ -213,6 +149,50 @@ footer {
         padding-top: 14px;
         padding-right: 14px;
         vertical-align: middle;
+    }
+}
+
+.about {
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    height: auto;
+    min-height: 230px;
+    @media (max-width: 460px) {
+        min-height: 120px;
+    }
+    .col-xs-4 {
+        display: inline-block;
+        text-align: center;
+    }
+    h1 {
+        font-size: 28px;
+        font-weight: 300;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        @media (max-width: $screen-sm-min) {
+            font-size: $title-font-size * 0.3;
+        }
+    }
+    i {
+        font-size: 50px;
+        margin: 0;
+    }
+    p {
+        width: 70%;
+        margin: auto;
+        font-size: $subtitle-font-size * 0.5;
+        @media (max-width: 460px) {
+            display: none;
+        }
+        @media (min-width: $screen-sm-min) {
+            font-size: $subtitle-font-size * 0.6;
+            padding: $subtitle-font-size * 0.5 * 0.6 0;
+        }
+        @media (min-width: $screen-lg-min) {
+            font-size: $subtitle-font-size * 0.8;
+            padding: $subtitle-font-size * 0.5 * 0.8 0;
+        }
     }
 }
 

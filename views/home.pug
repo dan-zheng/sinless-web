@@ -8,6 +8,19 @@ block content
                 |  person.
             hr
             p We help you get rid of bad habits and develop good ones.
+            div.about
+                div.col-xs-4
+                    h1 Swearing
+                    i.fa.fa-ban
+                    p Watch your language.
+                div.col-xs-4
+                    h1 Focus
+                    i.fa.fa-eye
+                    p Don't procrastinate.
+                div.col-xs-4
+                    h1 Exercise
+                    i.fa.fa-heart
+                    p Be active.
             a.btn.btn-primary(href='/login', role='button') Start today
     else
         div.main.auth
@@ -82,104 +95,104 @@ block content
 
             else
                 h1 Welcome!
-    script.
-        var user = !{JSON.stringify(user)};
-        var data = user.data;
-        if (data.length > 0) {
-            var currMoment = moment();
-            var startMoment = moment(data[0].date);
-            var len = currMoment.diff(startMoment, "days") + 1;
-            len = Math.min(len, 7);
+        script.
+            var user = !{JSON.stringify(user)};
+            var data = user.data;
+            if (data.length > 0) {
+                var currMoment = moment();
+                var startMoment = moment(data[0].date);
+                var len = currMoment.diff(startMoment, "days") + 1;
+                len = Math.min(len, 7);
 
-            var count = 0;
-            var dates = [];
-            var swears = [];
-            var timers = [];
-            var timersDone = [];
-            var swearLimit = [];
-            var timerLimit = [];    
-            for (var i = data.length - 1; i >= 0; i--) {
-                var diff = currMoment.diff(data[i].date, "days");
-                swears.push(data[i].swearCount);
-                timers.push(data[i].timerCount);
-                timersDone.push(data[i].timerDoneCount);
-                dates.push(moment(data[i].date).format("MM-DD"));
-                swearLimit.push(user.account.dailySwearMax);
-                timerLimit.push(user.account.dailyTimerMax);
+                var count = 0;
+                var dates = [];
+                var swears = [];
+                var timers = [];
+                var timersDone = [];
+                var swearLimit = [];
+                var timerLimit = [];    
+                for (var i = data.length - 1; i >= 0; i--) {
+                    var diff = currMoment.diff(data[i].date, "days");
+                    swears.push(data[i].swearCount);
+                    timers.push(data[i].timerCount);
+                    timersDone.push(data[i].timerDoneCount);
+                    dates.push(moment(data[i].date).format("MM-DD"));
+                    swearLimit.push(user.account.dailySwearMax);
+                    timerLimit.push(user.account.dailyTimerMax);
+                }
+                swears.unshift('swears');
+                timers.unshift('fail');
+                timersDone.unshift('success');
+                dates.unshift('dates');
+                swearLimit.unshift('limit');
+                timerLimit.unshift('limit');
+
+                var swearChart = c3.generate({
+                    bindto: '#swear-chart',
+                    title: {
+                        text: 'Swearing Sins vs Time'
+                    },
+                    data: {
+                        x: 'dates',
+                        xFormat: '%m-%d',
+                        columns: [
+                            dates,
+                            swearLimit,
+                            swears
+                        ],
+                        type: 'area-spline',
+                        /*
+                        types: {
+                            swearLimit: 'area-spline',
+                            swears: 'area-spline',
+                        },
+                        */
+                        colors: {
+                            limit: '#333333',
+                            swears: '#d62728'
+                        },
+                        labels: true
+                    },
+                    axis: {
+                        x: {
+                            type: 'timeseries',
+                            tick: {
+                                format: '%m-%d'
+                            }
+                        }
+                    }
+                });
+                
+                var timerChart = c3.generate({
+                    bindto: '#timer-chart',
+                    title: {
+                        text: 'Timer Sins vs Time'
+                    },
+                    data: {
+                        x: 'dates',
+                        xFormat: '%m-%d',
+                        columns: [
+                            dates,
+                            timerLimit,
+                            timers,
+                            timersDone,
+                        ],
+                        type: 'area-spline',
+                        colors: {
+                            limit: '#333333',
+                            fail: '#d62728',
+                            success: '#16f170'
+                            //timers: '#ff7f0e'
+                        },
+                        labels: true
+                    },
+                    axis: {
+                        x: {
+                            type: 'timeseries',
+                            tick: {
+                                format: '%m-%d'
+                            }
+                        }
+                    }
+                });
             }
-            swears.unshift('swears');
-            timers.unshift('fail');
-            timersDone.unshift('success');
-            dates.unshift('dates');
-            swearLimit.unshift('limit');
-            timerLimit.unshift('limit');
-
-            var swearChart = c3.generate({
-                bindto: '#swear-chart',
-                title: {
-                    text: 'Swearing Sins vs Time'
-                },
-                data: {
-                    x: 'dates',
-                    xFormat: '%m-%d',
-                    columns: [
-                        dates,
-                        swearLimit,
-                        swears
-                    ],
-                    type: 'area-spline',
-                    /*
-                    types: {
-                        swearLimit: 'area-spline',
-                        swears: 'area-spline',
-                    },
-                    */
-                    colors: {
-                        limit: '#333333',
-                        swears: '#d62728'
-                    },
-                    labels: true
-                },
-                axis: {
-                    x: {
-                        type: 'timeseries',
-                        tick: {
-                            format: '%m-%d'
-                        }
-                    }
-                }
-            });
-            
-            var timerChart = c3.generate({
-                bindto: '#timer-chart',
-                title: {
-                    text: 'Timer Sins vs Time'
-                },
-                data: {
-                    x: 'dates',
-                    xFormat: '%m-%d',
-                    columns: [
-                        dates,
-                        timerLimit,
-                        timers,
-                        timersDone,
-                    ],
-                    type: 'area-spline',
-                    colors: {
-                        limit: '#333333',
-                        fail: '#d62728',
-                        success: '#16f170'
-                        //timers: '#ff7f0e'
-                    },
-                    labels: true
-                },
-                axis: {
-                    x: {
-                        type: 'timeseries',
-                        tick: {
-                            format: '%m-%d'
-                        }
-                    }
-                }
-            });
-        }
