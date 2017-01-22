@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 const async = require('async');
 const formidable = require('formidable');
 const crypto = require('crypto');

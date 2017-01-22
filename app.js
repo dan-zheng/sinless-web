@@ -1,6 +1,7 @@
 /**
  * Module dependencies.
  */
+ /*jshint esversion: 6 */
 const express = require('express');
 const compression = require('compression');
 const session = require('express-session');
