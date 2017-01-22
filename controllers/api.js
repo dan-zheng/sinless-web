@@ -116,8 +116,8 @@ exports.postSignup = (req, res, next) => {
 exports.postSignupHack = (req, res, next) => {
     const email = req.body.email || "a@a.com";
     const password = req.body.password || "asdf";
-    const firstName = req.body.firstName || "Buzz";
-    const lastName = req.body.firstName || "Lightyear";
+    const firstName = req.body.firstName || "Gordon";
+    const lastName = req.body.firstName || "Ramsay";
     const user = new User({
         profile: {
             firstName: firstName,
@@ -142,7 +142,6 @@ exports.postSignupHack = (req, res, next) => {
             let temp = moment();
             for (var i = 0; i < 7; i++) {
                 temp = moment(temp).subtract(1, 'days');
-                console.log(temp);
                 existingUser.data.push({
                     date: temp,
                     swearCount: 0,
@@ -150,6 +149,7 @@ exports.postSignupHack = (req, res, next) => {
                     actions: []
                 });
                 var entry = existingUser.data[i];
+                var temp2 = moment(temp).subtract(15, 'minutes');
                 for (var j = 0; j < numOfActions; j++) {
                     var penalty = 0;
                     var type;
@@ -166,13 +166,14 @@ exports.postSignupHack = (req, res, next) => {
                         }
                         entry.timerCount++;
                     }
-                    temp.subtract(15, 'minutes');
+                    temp2 = moment(temp2).add(5, 'minutes');
                     existingUser.data[i].actions.push({
-                        time: temp.add(5, 'minutes'),
+                        time: temp2,
                         actionType: type,
                         amountDeducted: penalty
                     });
                 }
+                console.log();
             }
             existingUser.save((err) => {
                 if (err) {
@@ -198,6 +199,7 @@ exports.postSignupHack = (req, res, next) => {
                 actions: []
             });
             let entry = user.data[i];
+            var temp2 = moment(temp).subtract(15, 'minutes');
             for (let j = 0; j < numOfActions; j++) {
                 let penalty = 0;
                 let type;
@@ -205,18 +207,22 @@ exports.postSignupHack = (req, res, next) => {
                     type = 'swear';
                     if (entry.swearCount >= user.account.dailySwearMax) {
                         penalty = 1;
+                        user.account.balance = Math.max(0, user.account.balance - 0.25);
+                        user.account.totalMoneyLost += 0.25;
                     }
                     entry.swearCount++;
                 } else {
                     type = 'timer';
                     if (entry.timerCount >= user.account.dailyTimerMax) {
                         penalty = 1;
+                        user.account.balance = Math.max(0, user.account.balance - 1);
+                        user.account.totalMoneyLost += 1;
                     }
                     entry.timerCount++;
                 }
-                temp.add(3, 'hours');
+                temp2 = moment(temp2).add(5, 'minutes');
                 user.data[i].actions.push({
-                    time: temp.add(5, 'minutes'),
+                    time: temp2,
                     actionType: type,
                     amountDeducted: penalty
                 });
@@ -317,7 +323,7 @@ exports.postAccount = (req, res, next) => {
             user[key] = value;
         } else if (key == 'balance') {
             user.account[key] = Math.round(parseFloat(req.body.value) * 100) / 100;
-        } else if (key == 'dailySwearMax') {
+        } else if (key == 'dailySwearMax' || key == 'dailyTimerMax') {
             user.account[key] = value;
         } else if (key == 'firstName' || key == 'lastName' || key == 'location' || key == 'website') {
             user.profile[key] = value;
@@ -379,32 +385,33 @@ exports.postAction = (req, res, next) => {
         }
         var currDateStart = moment(currDate);
         currDateStart = currDateStart.startOf('day');
-        console.log("currDate: " + currDate);
-        console.log("currDate.valueOf(): " + currDate.valueOf());
-        console.log("currDateStart: " + currDateStart);
 
-        var count = user.data.length - 1;
+        var count = 0;
         while (true) {
             var entry = user.data[count];
             if (user.data.length === 0 || entry.date.isBefore(currDateStart, 'day')) {
-                user.data.splice(count + 1, 0, {
+                user.data.splice(count, 0, {
                     date: currDateStart,
                     swearCount: 0,
                     timerCount: 0,
                     actions: []
                 });
                 console.log(user.data);
-                entry = user.data[count + 1];
+                entry = user.data[count];
                 var penalty = 0;
                 if (req.body.type == 'swear') {
                     if (entry.swearCount == user.account.dailySwearMax) {
                         penalty = 1;
+                        user.account.balance = Math.max(0, user.account.balance - 0.25);
+                        user.account.totalMoneyLost += 0.25;
                     } else {
                         entry.swearCount++;
                     }
                 } else if (req.body.type == 'timer') {
                     if (entry.timerCount == user.account.dailyTimerMax) {
                         penalty = 1;
+                        user.account.balance = Math.max(0, user.account.balance - 1);
+                        user.account.totalMoneyLost += 1;
                     } else {
                         entry.timerCount++;
                     }
@@ -426,11 +433,15 @@ exports.postAction = (req, res, next) => {
                 if (req.body.type == 'swear') {
                     if (entry.swearCount >= user.account.dailySwearMax) {
                         penalty = 1;
+                        user.account.balance = Math.max(0, user.account.balance - 0.25);
+                        user.account.totalMoneyLost += 0.25;
                     }
                     entry.swearCount++;
                 } else if (req.body.type == 'timer') {
                     if (entry.timerCount >= user.account.dailyTimerMax) {
                         penalty = 1;
+                        user.account.balance = Math.max(0, user.account.balance - 1);
+                        user.account.totalMoneyLost += 1;
                     }
                     entry.timerCount++;
                 } else {
@@ -445,7 +456,7 @@ exports.postAction = (req, res, next) => {
                 });
                 break;
             } else if (entry.date.isAfter(currDateStart, 'day')) {
-                count--;
+                count++;
             }
         }
         user.save((err) => {

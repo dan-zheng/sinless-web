@@ -215,6 +215,7 @@ exports.postUpdateGoals = (req, res, next) => {
         if (err) { return next(err); }
         user.account.balance = Math.round((parseFloat(user.account.balance) + parseFloat(req.body.deposit)) * 100) / 100;
         user.account.dailySwearMax = req.body.dailySwearMax;
+        user.account.dailyTimerMax = req.body.dailyTimerMax;
         user.save((err) => {
             if (err) { return next(err); }
             req.flash('success', { msg: 'Goal information has been updated.' });
