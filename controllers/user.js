@@ -201,6 +201,7 @@ exports.postUpdateGoals = (req, res, next) => {
         req.assert('deposit', 'Deposit was not specified/is not valid.').notEmpty().isFloat().gte(0);
     }
     req.assert('dailySwearMax', 'Daily swear max was not specified/is not valid.').notEmpty().isInt().gte(0);
+    req.assert('dailyTimerMax', 'Daily timer max was not specified/is not valid.').notEmpty().isInt().gte(0);
 
     const errors = req.validationErrors();
 
