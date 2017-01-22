@@ -26,7 +26,9 @@ const userSchema = new mongoose.Schema({
         date: 'Moment',
         swearCount: { type: Number, default: 0 },
         timerCount: { type: Number, default: 0 },
+        timerDoneCount: { type: Number, default: 0 },
         totalMoneyLost: { type: Number, default: 0 },
+        totalMoneyEarned: { type: Number, default: 0 },
         actions: [{
             time: 'Moment',
             actionType: String,

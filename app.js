@@ -74,7 +74,7 @@ app.use(expressValidator({
             return param >= num;
         },
         isValidActionType: function(param) {
-            return param && (param == 'swear' || param == 'timer');
+            return param && (param == 'swear' || param == 'timer' || param == 'timerDone');
         }
     }
 }));

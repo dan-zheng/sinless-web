@@ -149,20 +149,20 @@ exports.postSignupHack = (req, res, next) => {
                     actions: []
                 });
                 var entry = existingUser.data[i];
-                var temp2 = moment(temp).subtract(15, 'minutes');
+                let temp2 = moment(temp).subtract(15, 'minutes');
                 for (var j = 0; j < numOfActions; j++) {
-                    var penalty = 0;
+                    var change = 0;
                     var type;
                     if (Math.random() < 0.5) {
                         type = 'swear';
                         if (entry.swearCount >= user.account.dailySwearMax) {
-                            penalty = 1;
+                            change = 1;
                         }
                         entry.swearCount++;
                     } else {
                         type = 'timer';
                         if (entry.timerCount >= user.account.dailyTimerMax) {
-                            penalty = 1;
+                            change = 1;
                         }
                         entry.timerCount++;
                     }
@@ -170,7 +170,7 @@ exports.postSignupHack = (req, res, next) => {
                     existingUser.data[i].actions.push({
                         time: temp2,
                         actionType: type,
-                        amountDeducted: penalty
+                        amountDeducted: change
                     });
                 }
                 console.log();
@@ -201,12 +201,12 @@ exports.postSignupHack = (req, res, next) => {
             let entry = user.data[i];
             var temp2 = moment(temp).subtract(15, 'minutes');
             for (let j = 0; j < numOfActions; j++) {
-                let penalty = 0;
+                let change = 0;
                 let type;
                 if (Math.random() < 0.5) {
                     type = 'swear';
                     if (entry.swearCount >= user.account.dailySwearMax) {
-                        penalty = 1;
+                        change = 1;
                         user.account.balance = Math.max(0, user.account.balance - 0.25);
                         user.account.totalMoneyLost += 0.25;
                     }
@@ -214,7 +214,7 @@ exports.postSignupHack = (req, res, next) => {
                 } else {
                     type = 'timer';
                     if (entry.timerCount >= user.account.dailyTimerMax) {
-                        penalty = 1;
+                        change = 1;
                         user.account.balance = Math.max(0, user.account.balance - 1);
                         user.account.totalMoneyLost += 1;
                     }
@@ -224,7 +224,7 @@ exports.postSignupHack = (req, res, next) => {
                 user.data[i].actions.push({
                     time: temp2,
                     actionType: type,
-                    amountDeducted: penalty
+                    amountDeducted: change
                 });
             }
         }
@@ -398,10 +398,10 @@ exports.postAction = (req, res, next) => {
                 });
                 console.log(user.data);
                 entry = user.data[count];
-                var penalty = 0;
+                var change = 0;
                 if (req.body.type == 'swear') {
                     if (entry.swearCount == user.account.dailySwearMax) {
-                        penalty = 1;
+                        change = 1;
                         user.account.balance = Math.max(0, user.account.balance - 0.25);
                         user.account.totalMoneyLost += 0.25;
                     } else {
@@ -409,12 +409,17 @@ exports.postAction = (req, res, next) => {
                     }
                 } else if (req.body.type == 'timer') {
                     if (entry.timerCount == user.account.dailyTimerMax) {
-                        penalty = 1;
+                        change = 1;
                         user.account.balance = Math.max(0, user.account.balance - 1);
                         user.account.totalMoneyLost += 1;
                     } else {
                         entry.timerCount++;
                     }
+                } else if (req.body.type == 'timerDone') {
+                    change = 1;
+                    user.account.balance = Math.max(0, user.account.balance - 1);
+                    user.account.totalMoneyEarned += 1;
+                    entry.timerDoneCount++;
                 } else {
                     return res.status(400).json([{
                         msg: "Action type is not valid."
@@ -423,27 +428,32 @@ exports.postAction = (req, res, next) => {
                 entry.actions.push({
                     time: currDate,
                     actionType: req.body.type,
-                    amountDeducted: penalty
+                    amountDeducted: change
                 });
                 break;
             } else if (entry.date.isSame(currDateStart, 'day')) {
                 // TODO: Account for time differences
                 // var count2 = entry.actions.length - 1;
-                let penalty = 0;
+                let change = 0;
                 if (req.body.type == 'swear') {
                     if (entry.swearCount >= user.account.dailySwearMax) {
-                        penalty = 1;
+                        change = 1;
                         user.account.balance = Math.max(0, user.account.balance - 0.25);
                         user.account.totalMoneyLost += 0.25;
                     }
                     entry.swearCount++;
                 } else if (req.body.type == 'timer') {
                     if (entry.timerCount >= user.account.dailyTimerMax) {
-                        penalty = 1;
+                        change = 1;
                         user.account.balance = Math.max(0, user.account.balance - 1);
                         user.account.totalMoneyLost += 1;
                     }
                     entry.timerCount++;
+                } else if (req.body.type == 'timerDone') {
+                    change = 1;
+                    user.account.balance = Math.max(0, user.account.balance - 1);
+                    user.account.totalMoneyEarned += 1;
+                    entry.timerDoneCount++;
                 } else {
                     return res.status(400).json([{
                         msg: "Action type is not valid."
@@ -452,7 +462,7 @@ exports.postAction = (req, res, next) => {
                 entry.actions.push({
                     time: currDate,
                     actionType: req.body.type,
-                    amountDeducted: penalty
+                    amountDeducted: change
                 });
                 break;
             } else if (entry.date.isAfter(currDateStart, 'day')) {

@@ -62,10 +62,16 @@ block content
                                             .collapse(id=temp2, role='tabpanel', aria-labelledby=temp2)
                                                 .card-block
                                                     each action in entry.actions
-                                                        p= action.time.format('h:mm A')
-                                                            | : #{action.actionType}, 
-                                                            span.red.bold= '+' + action.amountDeducted
+                                                        if action.actionType == 'timerDone'
+                                                            p= action.time.format('h:mm A')
+                                                                | : #{action.actionType}, 
+                                                                span.green.bold= '-' + action.amountDeducted
+                                                        else
+                                                            p= action.time.format('h:mm A')
+                                                                | : #{action.actionType}, 
+                                                                span.red.bold= '-' + action.amountDeducted
                                                     h4= "Total money lost: " + entry.totalMoneyLost
+                                                    h4= "Total money earned: " + entry.totalMoneyEarned
                             else
                                 h3 You have commited no sins! 
                                     .i.fa.fa-smile-o
@@ -88,18 +94,21 @@ block content
             var dates = [];
             var swears = [];
             var timers = [];
+            var timersDone = [];
             var swearLimit = [];
             var timerLimit = [];    
             for (var i = data.length - 1; i >= 0; i--) {
                 var diff = currMoment.diff(data[i].date, "days");
                 swears.push(data[i].swearCount);
                 timers.push(data[i].timerCount);
+                timersDone.push(data[i].timerDoneCount);
                 dates.push(moment(data[i].date).format("MM-DD"));
                 swearLimit.push(user.account.dailySwearMax);
                 timerLimit.push(user.account.dailyTimerMax);
             }
             swears.unshift('swears');
-            timers.unshift('timers');
+            timers.unshift('fail');
+            timersDone.unshift('success');
             dates.unshift('dates');
             swearLimit.unshift('limit');
             timerLimit.unshift('limit');
@@ -148,14 +157,18 @@ block content
                     columns: [
                         dates,
                         timerLimit,
-                        timers
+                        timers,
+                        timersDone,
                     ],
                     types: {
                         timerLimit: 'area-spline',
-                        timers: 'area-spline' // 'line', 'spline', 'step', 'area', 'area-step' are also available to stack
+                        timers: 'area-spline',
+                        timersDone: 'area-spline' // 'line', 'spline', 'step', 'area', 'area-step' are also available to stack
                     },
                     colors: {
-                        limit: '#d62728'
+                        timerLimit: '#d62728',
+                        timers: '#c94040',
+                        timersDone: '#16f170'
                         //timers: '#ff7f0e'
                     },
                     labels: true
