@@ -3,6 +3,7 @@ const passport = require('passport');
 const mongoose = require('mongoose');
 const moment = require('moment');
 const chance = new require('chance')();
+const request = require('superagent');
 
 const User = require('../models/User');
 
@@ -14,6 +15,62 @@ exports.index = (req, res) => {
     res.render('api/home', {
         title: 'API',
         user: req.user
+    });
+};
+
+/**
+ * GET /api/user/random
+ * Get random data for user.
+ */
+exports.getRandomData = (req, res, next) => {
+    const errors = req.validationErrors();
+
+    if (errors) {
+        return res.status(400).json(errors);
+    }
+
+/*
+    request.
+        post('http://localhost:3000/signup/data');
+        */
+};
+
+/**
+ * POST /api/user/id
+ * Get user info from user id.
+ */
+exports.postGetUserFromId = (req, res, next) => {
+    req.assert('id', 'Id is empty/not valid.').notEmpty();
+
+    const errors = req.validationErrors();
+
+    if (errors) {
+        return res.status(400).json(errors);
+    }
+
+    User.findOne({ _id: req.body.id }, (err, user) => {
+        if (err) {
+            return res.status(500).json([{
+                msg: 'Server failure.'
+            }]);
+        }
+        if (!user) {
+            return res.status(400).json([{
+                msg: 'No user with that id exists.'
+            }]);
+        }
+        user.save((err) => {
+            if (err) {
+                return res.status(500).json([{
+                    msg: 'Server failure.'
+                }]);
+            }
+            req.logIn(user, (err) => {
+                return res.status(200).json({
+                    user: user
+                });
+            });
+        });
     });
 };
 
@@ -114,7 +171,7 @@ exports.postSignup = (req, res, next) => {
  * Create a new local account with good data for demo purposes.
  */
 exports.postSignupHack = (req, res, next) => {
-    const email = req.body.email || "a@a.com";
+    const email = req.body.email || "gordon@ramsay.com";
     const password = req.body.password || "asdf";
     const firstName = req.body.firstName || "Gordon";
     const lastName = req.body.firstName || "Ramsay";
@@ -136,6 +193,7 @@ exports.postSignupHack = (req, res, next) => {
             }]);
         }
         if (existingUser) {
+            console.log(existingUser.account);
             existingUser.email = email;
             existingUser.password = password;
             existingUser.data = [];
@@ -164,14 +222,14 @@ exports.postSignupHack = (req, res, next) => {
                         type = 'timer';
                         if (entry.timerCount >= user.account.dailyTimerMax) {
                             change = 1;
-                            existingUser.account.balance = Math.max(0, user.account.balance - 1);
+                            existingUser.account.balance = Math.max(0, existingUser.account.balance - 1);
                             entry.totalMoneyLost += 1;
                         }
                         entry.timerCount++;
                     } else {
                         type = 'timerDone';
                         change = 1;
-                        existingUser.account.balance = Math.max(0, user.account.balance - 1);
+                        existingUser.account.balance = Math.max(0, existingUser.account.balance - 1);
                         entry.totalMoneyEarned += 1;
                         entry.timerDoneCount++;
                     }
@@ -369,7 +427,9 @@ exports.postAccount = (req, res, next) => {
 exports.postAction = (req, res, next) => {
     req.assert('id', 'User id was not specified.').notEmpty();
     req.assert('type', 'Action type is not valid.').isValidActionType();
-
+    if (req.body.type == 'swear') {
+        req.assert('time', 'Time is not valid.').notEmpty();
+    }
     console.log(req.body);
 
     const errors = req.validationErrors();
@@ -383,7 +443,7 @@ exports.postAction = (req, res, next) => {
     User.findById(req.body.id, (err, user) => {
         if (err) {
             return res.status(500).json([{
-                msg: "Server failure."
+                msg: "Server failure 1."
             }]);
         }
         if (!user) {
@@ -394,12 +454,12 @@ exports.postAction = (req, res, next) => {
         var currDate;
         if (!req.body.time) {
             currDate = moment();
-
         } else {
             currDate = moment(parseInt(req.body.time));
         }
         var currDateStart = moment(currDate);
         currDateStart = currDateStart.startOf('day');
+        console.log(currDate);
 
         var count = 0;
         while (true) {
@@ -415,6 +475,14 @@ exports.postAction = (req, res, next) => {
                 entry = user.data[count];
                 var change = 0;
                 if (req.body.type == 'swear') {
+                    var tempTime = moment(user.account.timeOfLastText);
+                    console.log(currDate);
+                    console.log(tempTime);
+                    console.log();
+                    if (currDate.isAfter(tempTime)) {
+                        console.log("updated: " + currDate);
+                        user.account.timeOfLastText = currDate;
+                    }
                     if (entry.swearCount == user.account.dailySwearMax) {
                         change = 1;
                         user.account.balance = Math.max(0, user.account.balance - 0.25);
@@ -449,6 +517,13 @@ exports.postAction = (req, res, next) => {
             } else if (entry.date.isSame(currDateStart, 'day')) {
                 // TODO: Account for time differences
                 // var count2 = entry.actions.length - 1;
+                for (let k = 0; k < entry.actions.length; k++) {
+                    if (moment(entry.actions.k.time).isSame(currDate)) {
+                        return res.status(200).json({
+                            msg: 'Action with same time already exists.'
+                        });
+                    }
+                }
                 let change = 0;
                 if (req.body.type == 'swear') {
                     if (entry.swearCount >= user.account.dailySwearMax) {
@@ -487,7 +562,7 @@ exports.postAction = (req, res, next) => {
         user.save((err) => {
             if (err) {
                 return res.status(500).json([{
-                    msg: "Server failure."
+                    msg: "Server failure 2."
                 }]);
             }
             return res.status(200).json({

@@ -144,12 +144,14 @@ app.post('/pebble', userController.postPebble);
  * API routes.
  */
 app.get('/api', apiController.index);
+app.post('/api/user/id', apiController.postGetUserFromId);
 app.post('/api/user/data', apiController.postGetUserData);
 app.post('/api/signup', apiController.postSignup);
 app.post('/api/signup/hack', apiController.postSignupHack);
 app.post('/api/login', apiController.postLogin);
 app.post('/api/account', apiController.postAccount);
 app.post('/api/account/action', apiController.postAction);
+app.get('/api/user/random', apiController.getRandomData);
 
 /**
  * Nessie (Capital One API) routes.

@@ -71,8 +71,8 @@ block content
                                                             p= action.time.format('h:mm A')
                                                                 | : #{action.actionType}, 
                                                                 span.red.bold= '-' + action.amountDeducted
-                                                    h4= "Total money lost: " + entry.totalMoneyLost
-                                                    h4= "Total money earned: " + entry.totalMoneyEarned
+                                                    h4= "Total money lost: $" + entry.totalMoneyLost
+                                                    h4= "Total money earned: $" + entry.totalMoneyEarned
                             else
                                 h3 You have commited no sins! 
                                     .i.fa.fa-smile-o

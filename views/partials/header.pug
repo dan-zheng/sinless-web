@@ -21,6 +21,8 @@
                         a(href='/signup') Sign up
                 else
                     li.divider
+                    li(class=(title == 'Generate data') ? 'active' : undefined)
+                        a(href='/api/user/random') Generate data
                     li.dropdown(class=(title == 'Account Management') ? 'active' : undefined)
                         a.dropdown-toggle(href='#', data-toggle='dropdown')
                             if user.profile.picture
