@@ -27,10 +27,9 @@ app.get('/create_account', function(req, res) {
 
     };
 
-    var REQ = http.request(options, function(res, error) {
-
-        if (error) {
-            console.log(error);
+    var REQ = http.request(options, function(res, err) {
+        if (err) {
+            console.log(err);
         }
         console.log('STATUS: ' + res.statusCode);
         //console.log('HEADERS: ' + JSON.stringify(res.headers));
@@ -39,10 +38,8 @@ app.get('/create_account', function(req, res) {
             console.log('BODY: ' + chunk);
         });
     });
-    REQ.write(JSON.stringify(bod));
+    REQ.write(JSON.stringify(bod, 4));
     REQ.end();
-
-
 });
 
 app.get('/get_account_by_id', function(req, res) {
@@ -62,10 +59,10 @@ app.get('/get_account_by_id', function(req, res) {
 
     };
 
-    var REQ = http.request(options, function(res, error) {
+    var REQ = http.request(options, function(res, err) {
 
-        if (error) {
-            console.log(error);
+        if (err) {
+            console.log(err);
         }
         console.log('STATUS: ' + res.statusCode);
         //console.log('HEADERS: ' + JSON.stringify(res.headers));
@@ -107,10 +104,10 @@ app.get('/register_user', function(req, res) {
 
     };
 
-    var REQ = http.request(options, function(res, error) {
+    var REQ = http.request(options, function(res, err) {
 
-        if (error) {
-            console.log(error);
+        if (err) {
+            console.log(err);
         }
         console.log('STATUS: ' + res.statusCode);
         console.log('HEADERS: ' + JSON.stringify(res.headers));
@@ -119,7 +116,7 @@ app.get('/register_user', function(req, res) {
             console.log('BODY: ' + util.inspect(chunk));
         });
     });
-    REQ.write(JSON.stringify(bod));
+    REQ.write(JSON.stringify(bod, 4));
     REQ.end();
 });
 
@@ -140,10 +137,10 @@ app.get('/get_user_by_id', function(req, res) {
 
     };
 
-    var REQ = http.request(options, function(res, error) {
+    var REQ = http.request(options, function(res, err) {
 
-        if (error) {
-            console.log(error);
+        if (err) {
+            console.log(err);
         }
         console.log('STATUS: ' + res.statusCode);
         //console.log('HEADERS: ' + JSON.stringify(res.headers));
@@ -181,10 +178,10 @@ app.get('/transaction_to_sinless', function(req, res) {
 
     };
 
-    var REQ = http.request(options, function(res, error) {
+    var REQ = http.request(options, function(res, err) {
 
-        if (error) {
-            console.log(error);
+        if (err) {
+            console.log(err);
         }
         console.log('STATUS: ' + res.statusCode);
         // console.log('HEADERS: ' + JSON.stringify(res.headers));
@@ -193,7 +190,7 @@ app.get('/transaction_to_sinless', function(req, res) {
             console.log('BODY: ' + chunk);
         });
     });
-    REQ.write(JSON.stringify(bod));
+    REQ.write(JSON.stringify(bod, 4));
     REQ.end();
 
 
@@ -223,10 +220,9 @@ app.get('/transaction_from_sinless_to_user', function(req, res) {
 
     };
 
-    var REQ = http.request(options, function(res, error) {
-
-        if (error) {
-            console.log(error);
+    var REQ = http.request(options, function(res, err) {
+        if (err) {
+            console.log(err);
         }
         console.log('STATUS: ' + res.statusCode);
         // console.log('HEADERS: ' + JSON.stringify(res.headers));
@@ -235,7 +231,7 @@ app.get('/transaction_from_sinless_to_user', function(req, res) {
             console.log('BODY: ' + chunk);
         });
     });
-    REQ.write(JSON.stringify(bod));
+    REQ.write(JSON.stringify(bod, 4));
     REQ.end();
 
 

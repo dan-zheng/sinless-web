@@ -29,6 +29,7 @@ const homeController = require('./controllers/home');
 const userController = require('./controllers/user');
 const contactController = require('./controllers/contact');
 const apiController = require('./controllers/api');
+const nessieController = require('./controllers/nessie');
 
 /**
  * API keys and Passport configuration.
@@ -148,6 +149,13 @@ app.post('/api/signup/hack', apiController.postSignupHack);
 app.post('/api/login', apiController.postLogin);
 app.post('/api/account', apiController.postAccount);
 app.post('/api/account/action', apiController.postAction);
+
+/**
+ * Nessie (Capital One API) routes.
+ */
+
+app.get('/nessie/account', nessieController.getAccount);
+app.post('/nessie/account', nessieController.postCreateAccount);
 
 /**
  * OAuth authentication routes. (Sign in)

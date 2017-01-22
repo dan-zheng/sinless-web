@@ -23,7 +23,6 @@ exports.index = (req, res) => {
  */
 exports.postGetUserData = (req, res, next) => {
     req.assert('id', 'Id is empty/not valid.').notEmpty();
-    console.log()
 
     const errors = req.validationErrors();
 

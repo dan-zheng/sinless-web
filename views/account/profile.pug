@@ -33,15 +33,27 @@ block content
                     | Update Profile
                     
     .page-header
-        h3 Goal Information
+        h3 Account Information
         
     form.form-horizontal(action='/account/goals', method='POST')
         input(type='hidden', name='_csrf', value=_csrf)
         .form-group
             label.col-sm-3.control-label(for='balance') Current balance
-            .col-sm-3.input-group
-                .input-group-addon $
-                input.form-control(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
+            if user.account.balance > 15
+                .col-sm-3.input-group.has-success
+                    .input-group-addon $
+                    input.form-control(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
+                h4.text-success.col-sm-offset-3 Your balance is good!
+            else if user.account.balance > 0
+                .col-sm-3.input-group.has-warning
+                    .input-group-addon $
+                    input.form-control(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
+                h4.text-warning.col-sm-offset-3 Your balance is almost empty.
+            else
+                .col-sm-3.input-group.has-danger
+                    .input-group-addon $
+                    input.form-control(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
+                h4.text-danger.col-sm-offset-3 Your balance is empty!
         .form-group
             label.col-sm-3.control-label(for='deposit') Deposit money
             .col-sm-3.input-group

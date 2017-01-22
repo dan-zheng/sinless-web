@@ -193,13 +193,21 @@ exports.postUpdatePassword = (req, res, next) => {
  * Update user goals.
  */
 exports.postUpdateGoals = (req, res, next) => {
-    req.assert('deposit', 'Value was not specified/is not valid.').notEmpty().isFloat().gte(0);
+    if (req.body.home) {
+        req.assert('deposit', 'Deposit was not specified/is not valid.').notEmpty().isFloat();
+        req.assert('deposit', 'Deposit must be positive.').gt(0);
+    } else {
+        req.assert('deposit', 'Deposit was not specified/is not valid.').notEmpty().isFloat().gte(0);
+    }
     req.assert('dailySwearMax', 'Daily swear max was not specified/is not valid.').notEmpty().isInt().gte(0);
 
     const errors = req.validationErrors();
 
     if (errors) {
         req.flash('errors', errors);
+        if (req.body.home) {
+            return res.redirect('/');
+        }
         return res.redirect('/account');
     }
     User.findById(req.user.id, (err, user) => {
@@ -209,6 +217,9 @@ exports.postUpdateGoals = (req, res, next) => {
         user.save((err) => {
             if (err) { return next(err); }
             req.flash('success', { msg: 'Goal information has been updated.' });
+            if (req.body.home) {
+                return res.redirect('/');
+            }
             res.redirect('/account');
         });
     });

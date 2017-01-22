@@ -37,18 +37,18 @@ block content
                                 h3.text-danger Your balance is empty!
                     .col-sm-6
                         h2 Deposit Money
-                        form.form-inline(action='/account/profile', method='POST')
+                        form.form-inline(action='/account/goals', method='POST')
+                            input(type='hidden', name='dailySwearMax', value=user.account.dailySwearMax)
+                            input(type='hidden', name='home', value="true")
                             .input-group.input-group-lg.bold
                                 .input-group-addon $
-                                input.form-control.form-control-success(type='number', name='balance', id='balance', value=user.account.balance.toFixed(2), readonly)
-                        .form-group
-                            .col-sm-offset-3.col-sm-4
-                                button.btn.btn.btn-primary(type='submit')
-                                    i.fa.fa-pencil
-                                    | Update Profile
+                                input.form-control.form-control-success(type='number', name='deposit', id='deposit', step='0.01', min='0', value='0.00')
+                                span.input-group-btn
+                                    button.btn.btn.btn-primary(type='submit')
+                                        i.fa.fa-thumbs-o-up
                 .row
                     .col-sm-6
-                        h2 Swear Information
+                        h2 Swearing Info
                             if user.data.length > 0
                                 each entry in user.data
                                     h3= entry.date.format("MMM D, Y")
@@ -57,68 +57,70 @@ block content
                                             | : #{action.actionType}, 
                                             span.red.bold= '+' + action.amountDeducted
                             else
-                                h3 There is no negative data. 
+                                h3 There is no negative data! 
                                     .i.fa.fa-smile-o
-                        #chart
-                    
+                        #swear-chart
+
             else
                 h1 Welcome!
     script.
         var user = !{JSON.stringify(user)};
         var data = user.data;
-        var currMoment = moment();
-        var startMoment = moment(data[data.length - 1].date);
-        var len = currMoment.diff(startMoment, "days") + 1;
-        if (len > 7) {
-            len = 7;
-        }
-        
-        var count = 0;
-        var limit = ['limit'];
-        var swears = [];
-        var dates = [];
-        for (var i = 0; i < len; i++) {
-            limit.push(user.account.dailySwearMax);
-        }
-        for (var i = data.length - 1; i >= 0; i--) {
-            console.log(data[i]);
-            var diff = currMoment.diff(data[i].date, "days");
-            swears.push(data[i].swearCount);
-            dates.push(moment(data[i].date).format("MM-DD"));
-            console.log("diff: " + diff);
-        }
-        swears.unshift('swears');
-        dates.unshift('dates');
-        
-        var swearChart = c3.generate({
-            bindto: '#swear-chart',
-            title: {
-                text: 'Swearing vs Time'
-            },
-            data: {
-                x: 'dates',
-                xFormat: '%m-%d',
-                columns: [
-                    dates,
-                    limit,
-                    swears
-                ],
-                types: {
-                    limit: 'area-spline',
-                    swears: 'area-spline' // 'line', 'spline', 'step', 'area', 'area-step' are also available to stack
+        if (data.length > 0) {
+            var currMoment = moment();
+            var startMoment = moment(data[data.length - 1].date);
+            var len = currMoment.diff(startMoment, "days") + 1;
+            if (len > 7) {
+                len = 7;
+            }
+
+            var count = 0;
+            var limit = ['limit'];
+            var swears = [];
+            var dates = [];
+            for (var i = 0; i < len; i++) {
+                limit.push(user.account.dailySwearMax);
+            }
+            for (var i = data.length - 1; i >= 0; i--) {
+                console.log(data[i]);
+                var diff = currMoment.diff(data[i].date, "days");
+                swears.push(data[i].swearCount);
+                dates.push(moment(data[i].date).format("MM-DD"));
+                console.log("diff: " + diff);
+            }
+            swears.unshift('swears');
+            dates.unshift('dates');
+
+            var swearChart = c3.generate({
+                bindto: '#swear-chart',
+                title: {
+                    text: 'Swearing vs Time'
                 },
-                colors: {
-                    limit: '#d62728',
-                    swears: '#ff7f0e'
+                data: {
+                    x: 'dates',
+                    xFormat: '%m-%d',
+                    columns: [
+                        dates,
+                        limit,
+                        swears
+                    ],
+                    types: {
+                        limit: 'area-spline',
+                        swears: 'area-spline' // 'line', 'spline', 'step', 'area', 'area-step' are also available to stack
+                    },
+                    colors: {
+                        limit: '#d62728',
+                        swears: '#ff7f0e'
+                    },
+                    labels: true
                 },
-                labels: true
-            },
-            axis: {
-                x: {
-                    type: 'timeseries',
-                    tick: {
-                        format: '%m-%d'
+                axis: {
+                    x: {
+                        type: 'timeseries',
+                        tick: {
+                            format: '%m-%d'
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
